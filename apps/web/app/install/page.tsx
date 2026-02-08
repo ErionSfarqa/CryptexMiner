@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { BadgeCheck, Lock, ShieldCheck } from "lucide-react";
 import { PayPalHostedButton } from "@/components/paypal/PayPalHostedButton";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -304,27 +305,42 @@ export default function InstallPage() {
       >
         <div className="space-y-4">
           <Card className="rounded-xl border-slate-700/65 bg-slate-900/55 p-4">
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Secure checkout</p>
-            <h3 className="mt-2 text-lg font-semibold text-white">Unlock access with PayPal</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-300">
-              Complete checkout to unlock installation. Once payment is confirmed, return here and refresh your status.
-            </p>
-            <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
+            <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Unlock Access</p>
+                <h3 className="mt-2 text-xl font-semibold text-white">Secure PayPal checkout</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-300">
+                  Complete checkout to unlock installation. After payment, return here and refresh your status.
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
+                <Lock className="h-3.5 w-3.5" />
                 Encrypted checkout
-              </span>
-              <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
-                EUR payment
-              </span>
-              <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
-                Instant unlock on confirmation
               </span>
             </div>
 
-            <div className="mt-4 flex justify-center">
-              <div className="w-full max-w-[340px]">
-                <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              <div className="flex items-start gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2">
+                <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                <p className="text-xs text-slate-200">PayPal secure checkout</p>
               </div>
+              <div className="flex items-start gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2">
+                <ShieldCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                <p className="text-xs text-slate-200">No card details stored on our servers</p>
+              </div>
+              <div className="flex items-start gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2">
+                <Lock className="mt-0.5 h-4 w-4 text-cyan-300" />
+                <p className="text-xs text-slate-200">EUR checkout</p>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-slate-700/65 bg-slate-950/10 p-4">
+              <div className="flex justify-center">
+                <div className="w-full max-w-[360px]">
+                  <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
+                </div>
+              </div>
+              <p className="mt-3 text-center text-xs text-slate-400">After checkout, tap Refresh status to continue.</p>
             </div>
           </Card>
 
@@ -335,10 +351,10 @@ export default function InstallPage() {
           ) : null}
 
           <div className="flex flex-wrap justify-end gap-2">
-            <Button variant="secondary" onClick={() => setShowPaywallModal(false)}>
+            <Button className="w-full sm:w-auto" variant="secondary" onClick={() => setShowPaywallModal(false)}>
               Close
             </Button>
-            <Button onClick={() => void handleRefreshStatus()} disabled={isCheckingStatus}>
+            <Button className="w-full sm:w-auto" onClick={() => void handleRefreshStatus()} disabled={isCheckingStatus}>
               {isCheckingStatus ? "Checking..." : "Refresh status"}
             </Button>
           </div>

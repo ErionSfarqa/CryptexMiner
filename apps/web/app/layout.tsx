@@ -71,10 +71,20 @@ export default function RootLayout({
         <Script id="smartsupp" strategy="afterInteractive">
           {`var _smartsupp = _smartsupp || {};
 _smartsupp.key = '6e9f7f52f8ff98a0999592f4bea229dff08a75c0';
-window.smartsupp||(function(d){var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];s=d.getElementsByTagName('script')[0];c=d.createElement('script');c.type='text/javascript';c.charset='utf-8';c.async=true;c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);})(document);`}
+window.smartsupp||(function(d) {
+  var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+  s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+  c.type='text/javascript';c.charset='utf-8';c.async=true;
+  c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+})(document);`}
         </Script>
         <noscript>
-          <p className="hidden">Smartsupp live chat requires JavaScript.</p>
+          <p className="text-xs text-slate-500">
+            Powered by{" "}
+            <a href="https://www.smartsupp.com" target="_blank" rel="noreferrer" className="underline">
+              Smartsupp
+            </a>
+          </p>
         </noscript>
         <Providers>
           <ServiceWorkerRegister />

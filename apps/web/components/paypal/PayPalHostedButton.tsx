@@ -113,19 +113,21 @@ export function PayPalHostedButton({ hostedButtonId, containerId, className }: P
 
   return (
     <div className={cn("space-y-2", className)}>
-      <div className="relative min-h-[56px]">
-        {renderStatus === "loading" ? <Skeleton className="h-12 w-full rounded-xl" /> : null}
+      <div className="relative">
         <div
           id={containerId}
-          className={cn(
-            "paypal-hosted-root flex min-h-[52px] items-center justify-center",
-            renderStatus === "loading" ? "absolute inset-0 opacity-0" : "opacity-100",
-          )}
+          aria-busy={renderStatus === "loading"}
+          className="paypal-hosted-root flex min-h-[96px] w-full items-center justify-center"
         />
+        {renderStatus === "loading" ? (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div className="w-full space-y-2">
+              <Skeleton className="mx-auto h-4 w-40 rounded-lg" />
+              <Skeleton className="mx-auto h-12 w-full max-w-[340px] rounded-xl" />
+            </div>
+          </div>
+        ) : null}
       </div>
-      {renderStatus === "loading" ? (
-        <p className="text-xs text-slate-400">Loading secure checkout...</p>
-      ) : null}
       {renderStatus === "error" ? (
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-xs text-amber-200">{errorMessage}</p>
