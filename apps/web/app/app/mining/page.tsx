@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Flame, Gauge, Play, Square, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,11 @@ import { formatCrypto } from "@/lib/utils";
 import type { SupportedCoin } from "@/lib/binance";
 import { useCryptexStore } from "@/store/app-store";
 
-const calibrationSteps = ["Initializing core...", "Calibrating power...", "Syncing network..."];
+const calibrationSteps = [
+  { message: "Initializing core...", duration: 2100 },
+  { message: "Calibrating power...", duration: 2200 },
+  { message: "Syncing network...", duration: 2400 },
+] as const;
 
 const baseHashrate: Record<SupportedCoin, number> = {
   BTC: 146,
@@ -30,6 +34,8 @@ interface EventItem {
   time: number;
 }
 
+type CalibrationState = "pending" | "running" | "ready";
+
 export default function MiningPage() {
   const addReward = useCryptexStore((state) => state.addReward);
   const calibrationComplete = useCryptexStore((state) => state.calibrationComplete);
@@ -39,54 +45,81 @@ export default function MiningPage() {
   const [selectedCoin, setSelectedCoin] = useState<SupportedCoin>("BTC");
   const [isRunning, setIsRunning] = useState(false);
   const [warmupRemaining, setWarmupRemaining] = useState(8);
-  const [calibrationStage, setCalibrationStage] = useState(calibrationComplete ? calibrationSteps.length : 0);
+  const [calibrationState, setCalibrationState] = useState<CalibrationState>(
+    calibrationComplete ? "ready" : "pending",
+  );
+  const [calibrationStage, setCalibrationStage] = useState(
+    calibrationComplete ? calibrationSteps.length : 0,
+  );
   const [stats, setStats] = useState({ hashrate: 0, temperature: 39, efficiency: 82 });
   const [blocksFound, setBlocksFound] = useState(0);
   const [rewardPulse, setRewardPulse] = useState(0);
+  const [blockPulse, setBlockPulse] = useState(0);
   const [eventFeed, setEventFeed] = useState<EventItem[]>([]);
 
   const warmupRef = useRef(8);
+  const calibrationTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const pushEvent = (text: string) => {
-    setEventFeed((previous) => [{ id: crypto.randomUUID(), text, time: Date.now() }, ...previous].slice(0, 8));
-  };
+  const clearCalibrationTimers = useCallback(() => {
+    calibrationTimersRef.current.forEach((timerId) => clearTimeout(timerId));
+    calibrationTimersRef.current = [];
+  }, []);
 
-  useEffect(() => {
-    if (calibrationComplete) {
+  const pushEvent = useCallback((text: string) => {
+    setEventFeed((previous) => [{ id: crypto.randomUUID(), text, time: Date.now() }, ...previous].slice(0, 10));
+  }, []);
+
+  const runCalibration = useCallback(() => {
+    if (calibrationState === "running") {
       return;
     }
 
-    const delays = [2400, 2200, 2600];
-    const timers: ReturnType<typeof setTimeout>[] = [
-      setTimeout(() => {
-        setCalibrationStage(0);
-      }, 0),
-    ];
+    clearCalibrationTimers();
+    setCalibrationState("running");
+    setCalibrationStage(0);
+    pushEvent("Calibration started.");
 
-    delays.forEach((delay, index) => {
-      const totalDelay = delays.slice(0, index + 1).reduce((sum, item) => sum + item, 0);
-      const timer = setTimeout(() => {
+    let totalDelay = 0;
+
+    calibrationSteps.forEach((step, index) => {
+      totalDelay += step.duration;
+
+      const timerId = setTimeout(() => {
         setCalibrationStage(index + 1);
 
-        if (index === delays.length - 1) {
+        if (index === calibrationSteps.length - 1) {
+          setCalibrationState("ready");
           setCalibrationComplete(true);
+          pushEvent("Calibration complete. Start mining when ready.");
         }
       }, totalDelay);
 
-      timers.push(timer);
+      calibrationTimersRef.current.push(timerId);
     });
+  }, [calibrationState, clearCalibrationTimers, pushEvent, setCalibrationComplete]);
 
-    return () => {
-      timers.forEach((timer) => clearTimeout(timer));
-    };
-  }, [calibrationComplete, setCalibrationComplete]);
+  useEffect(() => {
+    if (calibrationState !== "pending") {
+      return;
+    }
+
+    const timerId = setTimeout(() => {
+      runCalibration();
+    }, 80);
+
+    return () => clearTimeout(timerId);
+  }, [calibrationState, runCalibration]);
+
+  useEffect(() => {
+    return () => clearCalibrationTimers();
+  }, [clearCalibrationTimers]);
 
   useEffect(() => {
     if (!isRunning) {
       return;
     }
 
-    const timer = setInterval(() => {
+    const timerId = setInterval(() => {
       const hashBase = baseHashrate[selectedCoin];
       const dynamicHashrate = hashBase * (0.9 + Math.random() * 0.22);
       const dynamicTemp = 54 + Math.random() * 14 + (warmupRef.current > 0 ? -5 : 0);
@@ -124,23 +157,41 @@ export default function MiningPage() {
 
       if (blockEvent) {
         setBlocksFound((value) => value + 1);
+        setBlockPulse((value) => value + 1);
         pushEvent(`Block event pulse detected on ${selectedCoin}`);
       }
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [addReward, isRunning, selectedCoin]);
+    return () => clearInterval(timerId);
+  }, [addReward, isRunning, pushEvent, selectedCoin]);
 
   const calibrationText = useMemo(() => {
-    if (calibrationStage >= calibrationSteps.length) {
-      return "Calibration complete. Ready to start.";
+    if (calibrationState === "ready") {
+      return "Calibration complete. Ready to start mining.";
     }
 
-    return calibrationSteps[calibrationStage] ?? calibrationSteps[calibrationSteps.length - 1];
-  }, [calibrationStage]);
+    if (calibrationState === "pending") {
+      return "Calibration required before mining.";
+    }
 
-  const startSimulation = () => {
-    if (calibrationStage < calibrationSteps.length) {
+    const stageIndex = Math.min(calibrationStage, calibrationSteps.length - 1);
+    return calibrationSteps[stageIndex].message;
+  }, [calibrationStage, calibrationState]);
+
+  const startButtonLabel =
+    calibrationState === "ready"
+      ? "Start Mining"
+      : calibrationState === "running"
+        ? "Calibrating Core"
+        : "Start Calibration";
+
+  const handleStart = () => {
+    if (calibrationState !== "ready") {
+      runCalibration();
+      return;
+    }
+
+    if (isRunning) {
       return;
     }
 
@@ -162,7 +213,7 @@ export default function MiningPage() {
   };
 
   return (
-    <div className="grid gap-4">
+    <div className="space-y-4">
       <Card className="rounded-2xl">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -190,9 +241,9 @@ export default function MiningPage() {
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <Button onClick={startSimulation} disabled={isRunning || calibrationStage < calibrationSteps.length}>
+          <Button onClick={handleStart} disabled={isRunning || calibrationState === "running"}>
             <Play className="h-4 w-4" />
-            Start
+            {startButtonLabel}
           </Button>
           <Button variant="secondary" onClick={stopSimulation} disabled={!isRunning}>
             <Square className="h-4 w-4" />
@@ -212,12 +263,14 @@ export default function MiningPage() {
         </div>
       </Card>
 
-      <div className="grid gap-4 xl:grid-cols-[1.3fr_1fr]">
+      <div className="grid gap-4 xl:grid-cols-[1.35fr_1fr]">
         <Card className="rounded-2xl p-3 sm:p-4">
           <CoreAnimation
             isRunning={isRunning}
             warmupRemaining={warmupRemaining}
             rewardPulse={rewardPulse}
+            blockPulse={blockPulse}
+            calibrationMessage={calibrationText}
             lowPower={lowPowerAnimations}
           />
         </Card>
@@ -266,7 +319,10 @@ export default function MiningPage() {
             <p className="text-sm text-slate-400">No events yet. Start simulation to begin reward ticks.</p>
           ) : (
             eventFeed.map((event) => (
-              <div key={event.id} className="flex items-center justify-between rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2 text-sm">
+              <div
+                key={event.id}
+                className="flex items-center justify-between rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2 text-sm"
+              >
                 <span className="text-slate-200">{event.text}</span>
                 <span className="text-xs text-slate-400">{new Date(event.time).toLocaleTimeString()}</span>
               </div>
@@ -277,5 +333,3 @@ export default function MiningPage() {
     </div>
   );
 }
-
-

@@ -7,6 +7,8 @@ interface CoreAnimationProps {
   isRunning: boolean;
   warmupRemaining: number;
   rewardPulse: number;
+  blockPulse: number;
+  calibrationMessage: string;
   lowPower: boolean;
 }
 
@@ -19,7 +21,14 @@ interface ParticleSpec {
   delay: number;
 }
 
-export function CoreAnimation({ isRunning, warmupRemaining, rewardPulse, lowPower }: CoreAnimationProps) {
+export function CoreAnimation({
+  isRunning,
+  warmupRemaining,
+  rewardPulse,
+  blockPulse,
+  calibrationMessage,
+  lowPower,
+}: CoreAnimationProps) {
   const [isSmallViewport, setIsSmallViewport] = useState(false);
 
   useEffect(() => {
@@ -49,10 +58,10 @@ export function CoreAnimation({ isRunning, warmupRemaining, rewardPulse, lowPowe
   );
 
   return (
-    <div className="relative h-72 overflow-hidden rounded-2xl border border-slate-700/70 bg-[radial-gradient(circle_at_40%_35%,rgba(42,210,201,0.22),transparent_50%),radial-gradient(circle_at_70%_65%,rgba(95,160,255,0.14),transparent_42%),#071120]">
-      <div className="absolute inset-0">
+    <div className="relative min-h-[22rem] overflow-hidden rounded-2xl border border-slate-700/70 bg-[radial-gradient(circle_at_40%_35%,rgba(42,210,201,0.22),transparent_50%),radial-gradient(circle_at_70%_65%,rgba(95,160,255,0.14),transparent_42%),#071120]">
+      <div className="pointer-events-none absolute inset-0 select-none">
         <motion.div
-          className="absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200/35"
+          className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-200/35"
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 16, ease: "linear" }}
         />
@@ -60,6 +69,11 @@ export function CoreAnimation({ isRunning, warmupRemaining, rewardPulse, lowPowe
           className="absolute left-1/2 top-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full border border-sky-300/20"
           animate={{ rotate: -360 }}
           transition={{ repeat: Infinity, duration: 24, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full border border-cyan-100/10"
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 38, ease: "linear" }}
         />
 
         <motion.div
@@ -73,7 +87,9 @@ export function CoreAnimation({ isRunning, warmupRemaining, rewardPulse, lowPowe
 
         <motion.div
           className="absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-100"
-          animate={{ boxShadow: isRunning ? "0 0 32px 8px rgba(80,237,227,0.65)" : "0 0 18px 6px rgba(80,237,227,0.3)" }}
+          animate={{
+            boxShadow: isRunning ? "0 0 34px 10px rgba(80,237,227,0.68)" : "0 0 18px 6px rgba(80,237,227,0.3)",
+          }}
           transition={{ duration: 0.6 }}
         />
 
@@ -101,7 +117,7 @@ export function CoreAnimation({ isRunning, warmupRemaining, rewardPulse, lowPowe
           />
         ))}
 
-        <div className="scanline pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-cyan-300/15 to-transparent" />
+        <div className="scanline absolute inset-0 bg-gradient-to-b from-transparent via-cyan-300/15 to-transparent" />
 
         <motion.div
           key={rewardPulse}
@@ -110,6 +126,14 @@ export function CoreAnimation({ isRunning, warmupRemaining, rewardPulse, lowPowe
           animate={{ scale: 2.1, opacity: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
         />
+
+        <motion.div
+          key={blockPulse}
+          className="absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full border border-emerald-200/80"
+          initial={{ scale: 0.7, opacity: 0.95 }}
+          animate={{ scale: 2.7, opacity: 0 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+        />
       </div>
 
       <div className="absolute inset-x-0 bottom-0 border-t border-slate-700/60 bg-slate-950/55 px-4 py-2 text-xs text-slate-300">
@@ -117,10 +141,8 @@ export function CoreAnimation({ isRunning, warmupRemaining, rewardPulse, lowPowe
           ? warmupRemaining > 0
             ? `Warm-up in progress: ${warmupRemaining}s`
             : "Core synchronized: reward pulses active"
-          : "Core idle: start simulation to activate"}
+          : calibrationMessage}
       </div>
     </div>
   );
 }
-
-
