@@ -1,50 +1,30 @@
-# Cryptex Miner
+# Cryptex Monorepo
 
-Installable Next.js PWA with:
-- conversion-focused marketing landing page
-- simulation-only mining console (no real hashing)
-- live Binance markets (real API data only)
-- wallet valuation from mined balances and live Binance prices
+## Structure
+- `apps/web`: Next.js web app (marketing, install page, mining simulation, markets, wallet)
+- `apps/desktop`: Tauri desktop app (bundles local web assets)
 
-## Stack
-- Next.js App Router + TypeScript
-- Tailwind CSS
-- Framer Motion
-- Recharts
-- Zustand
-- React Query
-- Custom service worker + Web App Manifest
+## Web Commands
+- `npm run dev:web`
+- `npm run lint:web`
+- `npm run build:web`
 
-## Run locally
+`apps/web` uses static export (`out/`). Serve exported assets with:
 ```bash
-npm install
-npm run dev
+cd apps/web
+npx serve out
 ```
 
-Production check:
-```bash
-npm run build
-npm start
-```
+## Desktop Commands
+- `npm run dev:desktop`
+- `npm run build:desktop`
 
-## Key routes
-- `/` marketing landing
-- `/install` install launcher (iOS/Android/macOS/Windows)
-- `/app/mining` mining simulator
-- `/app/markets` markets dashboard
-- `/app/wallet` wallet + watch-only addresses
-- `/app/settings` preferences and reset
+Windows bundles are generated under:
+- `apps/desktop/src-tauri/target/release/bundle/nsis`
+- `apps/desktop/src-tauri/target/release/bundle/msi`
 
-## Installability notes
-- Manifest: `public/manifest.webmanifest`
-- Service worker: `public/sw.js` (registered in production)
-- Start URL: `/app/mining`
-- Mining route responds with HTTP 200 in browser tabs
-
-## Safety model
-- Mining is a simulation only.
-- No private keys or seed phrases are generated.
-- Wallet addresses are watch-only and stored locally.
-- Market data is Binance public API only; stale/unavailable states are clearly surfaced.
-
-
+## Installer Downloads (web)
+Desktop download links are served from:
+- `/downloads/Cryptex-Installer-Windows.exe`
+- `/downloads/Cryptex-Installer-Windows.msi`
+- `/downloads/Cryptex-Installer-macOS.dmg`

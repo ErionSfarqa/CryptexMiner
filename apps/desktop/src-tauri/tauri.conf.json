@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Cryptex Miner",
+  "version": "0.1.0",
+  "identifier": "com.cryptex.miner",
+  "build": {
+    "beforeDevCommand": "npm run dev --workspace @cryptex/web",
+    "devUrl": "http://localhost:3000/app/mining",
+    "beforeBuildCommand": "npm run build --workspace @cryptex/web",
+    "frontendDist": "../../web/out"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Cryptex Miner",
+        "width": 1320,
+        "height": 860,
+        "minWidth": 980,
+        "minHeight": 680,
+        "resizable": true,
+        "center": true,
+        "url": "/app/mining"
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "shortDescription": "Cryptex Miner desktop app",
+    "longDescription": "Cryptex Miner desktop app with simulation mining and live Binance markets.",
+    "category": "Finance",
+    "copyright": "Copyright (c) Cryptex",
+    "windows": {
+      "nsis": {
+        "displayLanguageSelector": false,
+        "installerIcon": "icons/icon.ico"
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "12.0"
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
