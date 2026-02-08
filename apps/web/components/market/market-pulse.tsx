@@ -31,7 +31,7 @@ export function MarketPulsePanel() {
 
   if (tickerQuery.isPending || klineQuery.isPending) {
     return (
-      <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
+      <div className="grid gap-4 xl:grid-cols-[1.45fr_1fr]">
         <Skeleton className="h-64 rounded-2xl" />
         <Skeleton className="h-64 rounded-2xl" />
       </div>
@@ -47,8 +47,8 @@ export function MarketPulsePanel() {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
-      <div className="glass-card gradient-border rounded-2xl p-4 sm:p-5">
+    <div className="grid gap-4 xl:grid-cols-[1.45fr_1fr]">
+      <div className="glass-card card-hover gradient-border rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Market Pulse</p>
@@ -107,14 +107,17 @@ export function MarketPulsePanel() {
         </div>
       </div>
 
-      <div className="glass-card gradient-border rounded-2xl p-4 sm:p-5">
+      <div className="glass-card card-hover gradient-border rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Top Movers</p>
         <div className="mt-3 space-y-3">
           {movers.map((asset) => {
             const positive = asset.priceChangePercent >= 0;
 
             return (
-              <div key={asset.symbol} className="flex items-center justify-between rounded-xl border border-slate-700/60 bg-slate-900/45 px-3 py-2">
+              <div
+                key={asset.symbol}
+                className="flex items-center justify-between rounded-xl border border-slate-700/60 bg-slate-900/45 px-3 py-2"
+              >
                 <div>
                   <p className="text-sm font-semibold text-white">{asset.symbol.replace("USDT", "")}</p>
                   <p className="text-xs text-slate-400">{asset.lastPrice.toFixed(asset.lastPrice >= 10 ? 2 : 4)}</p>

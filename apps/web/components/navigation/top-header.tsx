@@ -39,16 +39,16 @@ export function TopHeader() {
   const total = preferredFiat === "EUR" && eurUsdt > 0 ? totalUsd / eurUsdt : totalUsd;
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-700/45 bg-slate-950/85 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-6">
-        <div className="min-w-0">
+    <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/85 backdrop-blur">
+      <div className="ui-container flex w-full items-center justify-between gap-3 py-3">
+        <div className="min-w-0 flex-1">
           <p className="text-[11px] uppercase tracking-[0.24em] text-cyan-200/70">Portfolio</p>
           <p className="truncate text-base font-semibold text-white sm:text-lg">
             {formatCurrency(total, preferredFiat)}
           </p>
         </div>
         <div
-          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${
+          className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${
             isOnline
               ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-200"
               : "border-rose-400/40 bg-rose-500/10 text-rose-200"

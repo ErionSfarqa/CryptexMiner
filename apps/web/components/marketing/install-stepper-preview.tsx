@@ -27,7 +27,7 @@ const packages = [
 
 export function InstallStepperPreview() {
   return (
-    <div className="glass-card gradient-border rounded-2xl p-5">
+    <div className="glass-card card-hover gradient-border rounded-2xl border border-white/10 bg-white/[0.03] p-5">
       <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Install Packages</p>
       <div className="mt-4 grid gap-3">
         {packages.map((item, index) => (

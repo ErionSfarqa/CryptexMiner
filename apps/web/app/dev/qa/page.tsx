@@ -237,7 +237,9 @@ export default function DevQaPage() {
       if (landingResponse.ok) {
         landingHtml = await landingResponse.text();
       }
-      const centeredUnlockCard = landingHtml.includes("Unlock Access") && landingHtml.includes("max-w-lg");
+      const centeredUnlockCard =
+        landingHtml.includes("Unlock Access") &&
+        (landingHtml.includes("max-w-md") || landingHtml.includes("max-w-lg"));
       pushResult(
         "Unlock Access card center styles",
         centeredUnlockCard,
@@ -278,12 +280,12 @@ export default function DevQaPage() {
   }, [refreshStatus]);
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-6xl px-4 py-10 sm:px-6">
+    <main className="ui-container ui-section-app min-h-screen w-full">
       <div className="mx-auto w-full max-w-3xl space-y-6">
-        <Card className="rounded-2xl">
+        <Card>
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Dev QA</p>
           <h1 className="mt-2 text-3xl font-semibold text-white">Cryptex QA Dashboard</h1>
-          <p className="mt-2 text-sm text-slate-300 whitespace-normal break-words">
+          <p className="mt-2 text-sm text-slate-300">
             Hidden developer route for validating landing, install, and miner flows end-to-end.
           </p>
           <p className="mt-2 text-xs text-slate-400">
@@ -291,7 +293,7 @@ export default function DevQaPage() {
           </p>
         </Card>
 
-        <Card className="rounded-2xl">
+        <Card>
           <h2 className="text-lg font-semibold text-white">Live Status</h2>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <div className="rounded-xl border border-slate-700/65 bg-slate-900/45 px-3 py-2 text-sm text-slate-200">
@@ -309,7 +311,7 @@ export default function DevQaPage() {
           </div>
         </Card>
 
-        <Card className="rounded-2xl">
+        <Card>
           <h2 className="text-lg font-semibold text-white">Actions</h2>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <Button disabled={isBusy} onClick={() => void handleResetState()}>
@@ -345,7 +347,7 @@ export default function DevQaPage() {
           {message ? <p className="mt-3 text-xs text-cyan-200">{message}</p> : null}
         </Card>
 
-        <Card className="rounded-2xl">
+        <Card>
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-lg font-semibold text-white">QA Checks</h2>
             <Button variant="secondary" disabled={isRunningChecks} onClick={() => void runQaChecks()}>
@@ -372,15 +374,15 @@ export default function DevQaPage() {
                   <CircleSlash className="mt-0.5 h-4 w-4 text-rose-300" />
                 )}
                 <div className="min-w-0">
-                  <p className="text-sm text-white whitespace-normal break-words">{check.label}</p>
-                  <p className="text-xs text-slate-400 whitespace-normal break-words">{check.details}</p>
+                  <p className="text-sm text-white">{check.label}</p>
+                  <p className="text-xs text-slate-400">{check.details}</p>
                 </div>
               </div>
             ))}
           </div>
         </Card>
 
-        <Card className="rounded-2xl">
+        <Card>
           <div className="flex items-center gap-2 text-xs text-slate-400">
             {status.online ? <Wifi className="h-3.5 w-3.5 text-emerald-300" /> : <WifiOff className="h-3.5 w-3.5 text-rose-300" />}
             QA mode does not alter real navigator connectivity.
@@ -390,4 +392,3 @@ export default function DevQaPage() {
     </main>
   );
 }
-

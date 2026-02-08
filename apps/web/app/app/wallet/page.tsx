@@ -95,19 +95,19 @@ export default function WalletPage() {
   const totalValue = assetRows.reduce((sum, asset) => (asset.available ? sum + asset.value : sum), 0);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <Toast message={toast} />
 
-      <Card className="rounded-2xl">
+      <Card>
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Wallet Overview</p>
-        <h1 className="mt-2 text-3xl font-semibold text-white">{formatCurrency(totalValue, preferredFiat)}</h1>
-        <p className="mt-2 text-sm text-slate-300">Portfolio value uses live Binance market prices and tracked balances.</p>
+        <h1 className="ui-h2 mt-2 text-white">{formatCurrency(totalValue, preferredFiat)}</h1>
+        <p className="ui-body mt-2 text-slate-300">Portfolio value uses live Binance market prices and tracked balances.</p>
         {tickerQuery.data?.stale ? <p className="mt-2 text-xs text-amber-200">Unavailable / Stale</p> : null}
         {someUnavailable ? <p className="mt-1 text-xs text-amber-200">Some assets unavailable</p> : null}
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-[1.25fr_1fr]">
-        <Card className="rounded-2xl">
+        <Card>
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Assets</p>
           <div className="mt-4 space-y-3">
             {assetRows.map((asset) => (
@@ -135,7 +135,7 @@ export default function WalletPage() {
           </div>
         </Card>
 
-        <Card className="rounded-2xl">
+        <Card>
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Connected Wallets</p>
             <Button
@@ -169,7 +169,7 @@ export default function WalletPage() {
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-white">{label}</p>
                         <div className="mt-1 flex items-center gap-3">
-                          <span className="inline-flex items-center gap-1 text-xs text-slate-300">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-slate-700/70 bg-slate-900/65 px-2 py-1 text-xs text-slate-300">
                             <LogoMark
                               src={provider.logo}
                               alt={`${provider.label} logo`}
@@ -178,7 +178,7 @@ export default function WalletPage() {
                             />
                             {provider.label}
                           </span>
-                          <span className="inline-flex items-center gap-1 text-xs text-slate-300">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-slate-700/70 bg-slate-900/65 px-2 py-1 text-xs text-slate-300">
                             <LogoMark
                               src={network.logo}
                               alt={`${network.label} logo`}
@@ -191,7 +191,7 @@ export default function WalletPage() {
                       </div>
                     </div>
                     <p className="mt-2 truncate text-xs text-slate-300">{shortenAddress(entry.address)}</p>
-                    <div className="mt-3 flex gap-2">
+                    <div className="mt-3 flex flex-wrap gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -238,14 +238,17 @@ export default function WalletPage() {
         </Card>
       </div>
 
-      <Card className="rounded-2xl">
+      <Card>
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Mining Activity</p>
         <div className="mt-4 space-y-2">
           {activities.length === 0 ? (
             <p className="text-sm text-slate-400">No rewards yet. Start mining to generate activity.</p>
           ) : (
             activities.slice(0, 14).map((activity) => (
-              <div key={activity.id} className="flex items-center justify-between rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2 text-sm">
+              <div
+                key={activity.id}
+                className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2 text-sm"
+              >
                 <div>
                   <p className="text-slate-100">
                     +{formatCrypto(activity.amount)} {activity.coin}
@@ -254,7 +257,7 @@ export default function WalletPage() {
                     {activity.hashrate.toFixed(2)} TH/s {activity.blockEvent ? "- block pulse" : ""}
                   </p>
                 </div>
-                <span className="text-xs text-slate-400">{new Date(activity.timestamp).toLocaleTimeString()}</span>
+                <span className="shrink-0 text-xs text-slate-400">{new Date(activity.timestamp).toLocaleTimeString()}</span>
               </div>
             ))
           )}

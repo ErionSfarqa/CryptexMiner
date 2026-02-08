@@ -1,4 +1,4 @@
-const CACHE_NAME = "cryptex-shell-v2";
+const CACHE_NAME = "cryptex-shell-v3";
 const APP_SHELL = [
   "/",
   "/install",
@@ -10,6 +10,7 @@ const APP_SHELL = [
   "/icons/icon-192.png",
   "/icons/icon-512.png",
 ];
+const STATIC_PREFIXES = ["/icons/", "/wallet-logos/", "/network-logos/", "/coins/", "/tour/", "/images/"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -39,6 +40,20 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  if (url.pathname.startsWith("/api/")) {
+    return;
+  }
+
+  if (url.pathname.startsWith("/_next/")) {
+    // Avoid stale Next.js build/dev chunks causing hydration mismatches.
+    event.respondWith(fetch(request));
+    return;
+  }
+
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -64,21 +79,26 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (url.origin === self.location.origin) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) {
-          return cached;
-        }
+  const isKnownStatic =
+    APP_SHELL.includes(url.pathname) || STATIC_PREFIXES.some((prefix) => url.pathname.startsWith(prefix));
 
-        return fetch(request)
-          .then((response) => {
+  if (!isKnownStatic) {
+    return;
+  }
+
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      const networkFetch = fetch(request)
+        .then((response) => {
+          if (response.ok) {
             const copy = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-            return response;
-          })
-          .catch(() => cached);
-      }),
-    );
-  }
+          }
+          return response;
+        })
+        .catch(() => cached);
+
+      return cached ?? networkFetch;
+    }),
+  );
 });

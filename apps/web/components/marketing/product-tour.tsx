@@ -31,7 +31,7 @@ export function ProductTour() {
   const selected = tabs.find((tab) => tab.id === active) ?? tabs[0];
 
   return (
-    <section className="glass-card gradient-border rounded-3xl p-5 sm:p-7">
+    <section className="glass-card card-hover gradient-border rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-7">
       <div className="flex flex-wrap gap-2">
         {tabs.map((tab) => (
           <button
@@ -41,7 +41,7 @@ export function ProductTour() {
               "focus-ring rounded-xl border px-4 py-2 text-sm font-semibold transition",
               tab.id === active
                 ? "border-cyan-300/70 bg-cyan-300/20 text-cyan-100"
-                : "border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-500",
+                : "border-white/15 bg-slate-900/65 text-slate-300 hover:border-cyan-300/45 hover:text-white",
             )}
             onClick={() => setActive(tab.id)}
           >
@@ -52,8 +52,8 @@ export function ProductTour() {
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1.1fr_1.2fr] lg:items-center">
         <div>
-          <h3 className="text-2xl font-semibold text-white">{selected.title} Experience</h3>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">{selected.copy}</p>
+          <h3 className="ui-h2 text-white">{selected.title} Experience</h3>
+          <p className="ui-body mt-3 max-w-xl text-slate-300">{selected.copy}</p>
         </div>
 
         <div className="relative h-56 overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900/55 sm:h-72">

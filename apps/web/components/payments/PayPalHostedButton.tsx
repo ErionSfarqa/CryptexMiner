@@ -138,17 +138,17 @@ export function PayPalHostedButton({
   }, [containerId, hostedButtonId, onError, onReady, retrySeed]);
 
   return (
-    <div className={cn("space-y-2", className)}>
-      <div className="mt-4 flex justify-center">
+    <div className={cn("space-y-3 text-center", className)}>
+      <div className="flex justify-center">
         <div className="w-full max-w-[360px]">
           <div
             id={containerId}
             aria-busy={renderState === "loading"}
-            className="paypal-hosted-root min-h-[56px] w-full whitespace-normal break-words"
+            className="paypal-hosted-root min-h-[56px] w-full"
           />
           {renderState === "loading" ? (
             <div className="mt-2 space-y-2">
-              <Skeleton className="h-4 w-28 rounded-lg" />
+              <Skeleton className="mx-auto h-4 w-28 rounded-lg" />
               <Skeleton className="h-12 w-full rounded-xl" />
             </div>
           ) : null}
@@ -157,7 +157,7 @@ export function PayPalHostedButton({
 
       {renderState === "error" ? (
         <div className="flex flex-wrap items-center justify-center gap-2 text-center">
-          <p className="text-xs text-amber-200 whitespace-normal break-words">{errorText}</p>
+          <p className="text-xs text-amber-200">{errorText}</p>
           <Button size="sm" variant="secondary" onClick={resetRender}>
             Retry Checkout
           </Button>
@@ -166,4 +166,3 @@ export function PayPalHostedButton({
     </div>
   );
 }
-

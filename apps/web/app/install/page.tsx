@@ -259,22 +259,22 @@ export default function InstallPage() {
   ];
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-4 py-14 sm:px-6">
+    <main className="ui-container ui-section-marketing flex min-h-screen w-full flex-col justify-center">
       <Toast message={toast} />
 
       <div className="text-center">
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Cryptex Installer</p>
-        <h1 className="mt-3 text-4xl font-semibold text-white">Download and install Cryptex Miner</h1>
-        <p className="mt-3 text-sm text-slate-300">
+        <h1 className="ui-h1 mt-3 text-white">Download and install Cryptex Miner</h1>
+        <p className="ui-muted mt-3 text-slate-300">
           {recommended ? `Recommended for ${recommended === "macos" ? "macOS" : recommended}` : "Select your platform"}
         </p>
       </div>
 
       <div
-        className={`mx-auto mt-6 w-full max-w-3xl rounded-2xl px-5 py-4 shadow-[0_20px_60px_-40px_rgba(34,211,238,0.65)] ${
+        className={`mx-auto mt-7 w-full max-w-3xl rounded-2xl border px-5 py-4 shadow-[0_20px_60px_-40px_rgba(34,211,238,0.65)] ${
           entitlement === "paid"
-            ? "border border-emerald-200/20 bg-[linear-gradient(145deg,rgba(16,70,58,0.24),rgba(8,25,22,0.22))]"
-            : "border border-cyan-200/20 bg-[linear-gradient(145deg,rgba(34,211,238,0.08),rgba(8,37,62,0.28))]"
+            ? "border-emerald-200/20 bg-[linear-gradient(145deg,rgba(16,70,58,0.24),rgba(8,25,22,0.22))]"
+            : "border-cyan-200/20 bg-[linear-gradient(145deg,rgba(34,211,238,0.08),rgba(8,37,62,0.28))]"
         }`}
       >
         {entitlement === "loading" ? (
@@ -285,10 +285,10 @@ export default function InstallPage() {
               <BadgeCheck className="h-4 w-4" />
             </span>
             <div>
-              <p className="whitespace-normal break-words text-sm font-semibold text-emerald-100">
+              <p className="text-sm font-semibold text-emerald-100">
                 Payment verified. Installation is unlocked.
               </p>
-              <p className="mt-1 whitespace-normal break-words text-xs text-emerald-100/85">
+              <p className="mt-1 text-xs text-emerald-100/85">
                 Select your platform and continue.
               </p>
             </div>
@@ -299,10 +299,10 @@ export default function InstallPage() {
               <Lock className="h-4 w-4" />
             </span>
             <div>
-              <p className="whitespace-normal break-words text-sm font-semibold text-cyan-100">
+              <p className="text-sm font-semibold text-cyan-100">
                 Installation unlocks after secure PayPal payment.
               </p>
-              <p className="mt-1 whitespace-normal break-words text-xs text-cyan-100/85">
+              <p className="mt-1 text-xs text-cyan-100/85">
                 Click any install button to open checkout.
               </p>
             </div>
@@ -310,14 +310,14 @@ export default function InstallPage() {
         )}
       </div>
 
-      <section className="mx-auto mt-8 grid w-full max-w-5xl grid-cols-2 gap-4 lg:grid-cols-4">
+      <section className="mx-auto mt-8 grid w-full max-w-6xl grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => {
           const isRecommended = card.id === recommended;
           return (
             <Card
               key={card.id}
-              className={`flex flex-col items-center rounded-2xl p-5 text-center ${
-                isRecommended ? "border-cyan-300/70 bg-cyan-300/10" : "border-slate-700/65"
+              className={`flex flex-col items-center p-5 text-center ${
+                isRecommended ? "border-cyan-300/70 bg-cyan-300/10" : "border-white/10"
               }`}
             >
               <div className="rounded-xl border border-slate-600/70 bg-slate-900/65 p-3">{card.logo}</div>
@@ -341,33 +341,36 @@ export default function InstallPage() {
         }}
         title="Unlock access"
         description="Complete secure checkout to continue installation."
-        className="max-h-[80vh] overflow-hidden p-4 sm:max-h-[85vh] sm:p-5"
+        className="max-w-md text-center"
       >
-        <div className="flex max-h-[calc(80vh-7.5rem)] flex-col sm:max-h-[calc(85vh-8rem)]">
-          <div className="overflow-y-auto pr-1">
-            <Card className="rounded-xl border-slate-700/65 bg-slate-900/55 p-4">
-              <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Payment required</p>
-              <h3 className="mt-1 text-lg font-semibold text-white whitespace-normal break-words">Secure PayPal checkout</h3>
-              <ul className="mt-3 space-y-2">
-                <li className="flex items-start gap-2 text-xs text-slate-200">
-                  <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
-                  <span className="whitespace-normal break-words">Encrypted one-time payment</span>
-                </li>
-                <li className="flex items-start gap-2 text-xs text-slate-200">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
-                  <span className="whitespace-normal break-words">No card details stored on our servers</span>
-                </li>
-                <li className="flex items-start gap-2 text-xs text-slate-200">
-                  <Lock className="mt-0.5 h-4 w-4 text-cyan-300" />
-                  <span className="whitespace-normal break-words">Unlocks automatically after confirmation</span>
-                </li>
-              </ul>
-              <div className="mt-3 rounded-2xl border border-slate-700/65 bg-slate-950/10 p-3">
-                <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
-              </div>
-            </Card>
-          </div>
-          <div className="mt-3 grid gap-2 border-t border-slate-700/65 pt-3 sm:grid-cols-2">
+        <div className="space-y-4 text-center">
+          <Card className="border-white/10 bg-white/[0.03] p-4">
+            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Payment required</p>
+            <h3 className="mt-1 text-lg font-semibold text-white">Secure PayPal checkout</h3>
+            <ul className="mt-3 space-y-2">
+              <li className="flex items-start justify-center gap-2 text-xs text-slate-200">
+                <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                <span>Encrypted one-time payment</span>
+              </li>
+              <li className="flex items-start justify-center gap-2 text-xs text-slate-200">
+                <ShieldCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                <span>No card details stored on our servers</span>
+              </li>
+              <li className="flex items-start justify-center gap-2 text-xs text-slate-200">
+                <Lock className="mt-0.5 h-4 w-4 text-cyan-300" />
+                <span>Unlocks automatically after confirmation</span>
+              </li>
+            </ul>
+            <div className="mt-4 rounded-2xl border border-slate-700/65 bg-slate-950/15 p-3">
+              <PayPalHostedButton
+                hostedButtonId={PAYPAL_HOSTED_BUTTON_ID}
+                containerId={PAYPAL_CONTAINER_ID}
+                className="mx-auto w-full max-w-[360px]"
+              />
+            </div>
+          </Card>
+
+          <div className="grid gap-2 sm:grid-cols-2">
             <Button className="w-full" onClick={() => void handlePaymentCheck()} disabled={checkingUnlock}>
               {checkingUnlock ? "Checking payment..." : "I completed payment"}
             </Button>

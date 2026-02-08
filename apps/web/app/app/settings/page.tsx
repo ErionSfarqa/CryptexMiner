@@ -16,10 +16,10 @@ export default function SettingsPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
-    <div className="space-y-4">
-      <Card className="rounded-2xl">
+    <div className="space-y-5">
+      <Card>
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Settings</p>
-        <h1 className="mt-2 text-2xl font-semibold text-white">Preferences</h1>
+        <h1 className="ui-h2 mt-2 text-white">Preferences</h1>
 
         <div className="mt-5 space-y-4">
           <label className="flex items-center justify-between rounded-xl border border-slate-700/70 bg-slate-900/55 px-4 py-3">
@@ -42,7 +42,7 @@ export default function SettingsPage() {
             <select
               value={preferredFiat}
               onChange={(event) => setPreferredFiat(event.target.value as "USD" | "EUR")}
-              className="focus-ring mt-3 w-full rounded-lg border border-slate-600 bg-slate-950/80 px-3 py-2 text-sm text-white"
+              className="ui-input mt-3"
             >
               <option value="USD">USD</option>
               <option value="EUR">EUR</option>
@@ -59,7 +59,7 @@ export default function SettingsPage() {
         </div>
       </Card>
 
-      <Card className="rounded-2xl">
+      <Card>
         <p className="text-sm text-slate-300">
           Cryptex Miner does not execute blockchain hashing, network validation, or private key generation.
         </p>

@@ -49,20 +49,20 @@ type SecureCard = (typeof securePaymentCards)[number];
 
 function SecurePaymentInfoCard({ item }: { item: SecureCard }) {
   return (
-    <Card className="group w-full max-w-xl rounded-2xl border-slate-700/65 bg-slate-900/55 p-5 transition duration-300 hover:border-cyan-300/40 hover:shadow-[0_18px_50px_-30px_rgba(34,211,238,0.7)]">
+    <Card className="group w-full max-w-xl border-white/10 bg-white/[0.03] p-5 sm:p-6">
       <div className="flex items-start gap-3">
         <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-300/35 bg-cyan-300/10 text-cyan-200">
           <item.icon className="h-4 w-4" />
         </span>
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">{item.eyebrow}</p>
-          <h3 className="mt-1 whitespace-normal break-words text-xl font-semibold text-white">{item.title}</h3>
-          <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-slate-300">{item.body}</p>
+          <h3 className="mt-1 text-xl font-semibold text-white">{item.title}</h3>
+          <p className="ui-body mt-2 text-slate-300">{item.body}</p>
           <ul className="mt-3 space-y-1.5">
             {item.points.map((point) => (
               <li key={point} className="flex items-start gap-2 text-sm text-slate-200">
                 <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
-                <span className="whitespace-normal break-words">{point}</span>
+                <span>{point}</span>
               </li>
             ))}
           </ul>
@@ -100,20 +100,23 @@ export default function MarketingPage() {
         ))}
       </div>
 
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-6 sm:px-6">
+      <header className="ui-container flex items-center justify-between py-6">
         <Link href="/" className="focus-ring rounded-lg px-2 py-1 text-sm font-semibold uppercase tracking-[0.24em] text-cyan-100">
           Cryptex Miner
         </Link>
-        <Link href="/install" className="focus-ring rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 hover:border-cyan-300/60">
+        <Link
+          href="/install"
+          className="focus-ring rounded-xl border border-white/20 px-4 py-2 text-sm text-slate-200 transition hover:border-cyan-300/55 hover:bg-slate-900/70"
+        >
           {isPaid ? "Install Miner" : "Open Install Page"}
         </Link>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl space-y-14 px-4 pb-20 sm:px-6">
-        <section className="grid gap-10 pt-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+      <main className="ui-container space-y-2 pb-20">
+        <section className="ui-section-marketing grid gap-10 pt-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
             <motion.p
-              className="inline-flex items-center gap-2 rounded-full border border-cyan-300/40 bg-cyan-300/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-cyan-100"
+              className="ui-badge inline-flex items-center gap-2"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
             >
@@ -121,7 +124,7 @@ export default function MarketingPage() {
               Premium Desktop + Mobile Experience
             </motion.p>
             <motion.h1
-              className="mt-5 text-4xl font-semibold leading-tight text-white sm:text-5xl"
+              className="ui-h1 mt-5 text-white"
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.08 }}
@@ -129,7 +132,7 @@ export default function MarketingPage() {
               Install in seconds. Mining made easy
             </motion.h1>
             <motion.p
-              className="mt-4 max-w-xl text-base leading-7 text-slate-300"
+              className="ui-body mt-4 max-w-xl text-slate-300"
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.14 }}
@@ -159,7 +162,7 @@ export default function MarketingPage() {
             </motion.div>
           </div>
 
-          <Card className="relative overflow-hidden rounded-3xl border border-slate-700/55 p-6">
+          <Card className="relative overflow-hidden rounded-3xl border-white/10 p-6">
             <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(35,211,200,0.2),transparent_44%),radial-gradient(circle_at_90%_70%,rgba(74,161,255,0.18),transparent_36%)]" />
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Why teams choose Cryptex</p>
             <ul className="mt-4 space-y-4">
@@ -187,7 +190,7 @@ export default function MarketingPage() {
           </Card>
         </section>
 
-        <section id="secure-payment" className="space-y-6">
+        <section id="secure-payment" className="ui-section-marketing space-y-6">
           <motion.div
             className="mx-auto max-w-2xl text-center"
             initial={{ opacity: 0, y: 14 }}
@@ -196,13 +199,13 @@ export default function MarketingPage() {
             transition={{ duration: 0.28 }}
           >
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Secure Payment</p>
-            <h2 className="mt-2 text-3xl font-semibold text-white">Pay securely. Activate instantly.</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-300">
+            <h2 className="ui-h2 mt-2 text-white">Pay securely. Activate instantly.</h2>
+            <p className="ui-body mt-2 text-slate-300">
               Trusted checkout experience with professional payment messaging and a direct activation flow.
             </p>
           </motion.div>
 
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 sm:px-6">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
             {firstSecureCard ? (
               <motion.div
                 className="flex justify-center md:justify-end"
@@ -234,13 +237,13 @@ export default function MarketingPage() {
               viewport={{ once: true, amount: 0.24 }}
               transition={{ duration: 0.24 }}
             >
-              <Card className="mx-auto w-full max-w-md rounded-2xl border-cyan-200/20 bg-cyan-500/5 text-center">
-                <div className="space-y-4">
+              <Card className="mx-auto w-full max-w-md border-cyan-200/20 bg-cyan-500/5 text-center">
+                <div className="mx-auto w-full space-y-4">
                   <div className="flex flex-col items-center gap-3 text-center">
                     <div>
                       <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Unlock Access</p>
-                      <h3 className="mt-2 whitespace-normal break-words text-2xl font-semibold text-white">One-time PayPal activation</h3>
-                      <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-slate-300">
+                      <h3 className="mt-2 text-2xl font-semibold text-white">One-time PayPal activation</h3>
+                      <p className="ui-body mt-2 text-slate-300">
                         Complete checkout to unlock installer downloads and activate access across devices.
                       </p>
                     </div>
@@ -250,13 +253,13 @@ export default function MarketingPage() {
                     </span>
                   </div>
 
-                  <div className="mx-auto w-full rounded-2xl border border-slate-700/65 bg-slate-900/55 p-4">
-                    <div className="flex justify-center">
-                      <div className="w-full max-w-[360px] min-h-[56px]">
-                        <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
-                      </div>
-                    </div>
-                    <p className="mt-3 whitespace-normal break-words text-center text-xs text-slate-400">
+                  <div className="mx-auto w-full max-w-[360px] rounded-2xl border border-cyan-200/20 bg-slate-900/55 p-4 text-center">
+                    <PayPalHostedButton
+                      hostedButtonId={PAYPAL_HOSTED_BUTTON_ID}
+                      containerId={PAYPAL_CONTAINER_ID}
+                      className="mx-auto w-full max-w-[360px]"
+                    />
+                    <p className="mt-3 text-center text-xs text-slate-400">
                       After checkout, return to the Install page to download.
                     </p>
                   </div>
@@ -264,15 +267,15 @@ export default function MarketingPage() {
                   <ul className="grid gap-2">
                     <li className="flex items-center justify-center gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2 text-xs text-slate-200">
                       <BadgeCheck className="h-4 w-4 text-cyan-300" />
-                      <span className="whitespace-normal break-words text-center">PayPal secure checkout</span>
+                      <span className="text-center">PayPal secure checkout</span>
                     </li>
                     <li className="flex items-center justify-center gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2 text-xs text-slate-200">
                       <ShieldCheck className="h-4 w-4 text-cyan-300" />
-                      <span className="whitespace-normal break-words text-center">No card details stored on our servers</span>
+                      <span className="text-center">No card details stored on our servers</span>
                     </li>
                     <li className="flex items-center justify-center gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2 text-xs text-slate-200">
                       <Smartphone className="h-4 w-4 text-cyan-300" />
-                      <span className="whitespace-normal break-words text-center">Instant unlock on confirmation</span>
+                      <span className="text-center">Instant unlock on confirmation</span>
                     </li>
                   </ul>
 
@@ -302,32 +305,32 @@ export default function MarketingPage() {
           </div>
         </section>
 
-        <section>
+        <section className="ui-section-marketing">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-2xl font-semibold text-white">Live Markets</h2>
+            <h2 className="ui-h2 text-white">Live Markets</h2>
             <p className="text-xs uppercase tracking-[0.22em] text-slate-400">Binance public API</p>
           </div>
           <LiveTickerStrip />
         </section>
 
-        <section>
-          <h2 className="mb-4 text-2xl font-semibold text-white">Product Tour</h2>
+        <section className="ui-section-marketing">
+          <h2 className="ui-h2 mb-4 text-white">Product Tour</h2>
           <ProductTour />
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
+        <section className="ui-section-marketing grid gap-4 lg:grid-cols-[1.5fr_1fr]">
           <div>
-            <h2 className="mb-4 text-2xl font-semibold text-white">Market Pulse</h2>
+            <h2 className="ui-h2 mb-4 text-white">Market Pulse</h2>
             <MarketPulsePanel />
           </div>
           <div>
-            <h2 className="mb-4 text-2xl font-semibold text-white">Install Packages</h2>
+            <h2 className="ui-h2 mb-4 text-white">Install Packages</h2>
             <InstallStepperPreview />
           </div>
         </section>
 
-        <section>
-          <h2 className="mb-4 text-2xl font-semibold text-white">Trusted & Secure</h2>
+        <section className="ui-section-marketing">
+          <h2 className="ui-h2 mb-4 text-white">Trusted & Secure</h2>
           <div className="grid gap-4 sm:grid-cols-3">
           {[
             { title: "Security Guarantee", body: "Wallet entries are watch-only and kept on-device. No custody, no private keys, no seed phrase handling." },
@@ -342,8 +345,8 @@ export default function MarketingPage() {
           </div>
         </section>
 
-        <section>
-          <Card className="rounded-2xl">
+        <section className="ui-section-marketing">
+          <Card>
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">FAQs</p>
             <div className="mt-4 space-y-3">
               {[
@@ -370,9 +373,11 @@ export default function MarketingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-slate-700/50 px-4 py-6 text-center text-xs text-slate-400">
-        <p>Cryptex Miner (c) {new Date().getFullYear()} - Terms - Privacy</p>
-        <p className="mt-1">No blockchain hashing, consensus execution, or private key generation is performed.</p>
+      <footer className="border-t border-slate-700/50 py-6 text-center text-xs text-slate-400">
+        <div className="ui-container">
+          <p>Cryptex Miner (c) {new Date().getFullYear()} - Terms - Privacy</p>
+          <p className="mt-1">No blockchain hashing, consensus execution, or private key generation is performed.</p>
+        </div>
       </footer>
     </div>
   );

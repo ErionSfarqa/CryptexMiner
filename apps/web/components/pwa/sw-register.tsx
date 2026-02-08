@@ -4,11 +4,26 @@ import { useEffect } from "react";
 
 export function ServiceWorkerRegister() {
   useEffect(() => {
-    if (process.env.NODE_ENV !== "production") {
+    if (!("serviceWorker" in navigator)) {
       return;
     }
 
-    if (!("serviceWorker" in navigator)) {
+    if (process.env.NODE_ENV !== "production") {
+      const cleanupStaleWorkers = async () => {
+        try {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map((registration) => registration.unregister()));
+
+          if ("caches" in window) {
+            const cacheKeys = await caches.keys();
+            await Promise.all(cacheKeys.map((key) => caches.delete(key)));
+          }
+        } catch (error) {
+          console.error("Service worker cleanup failed", error);
+        }
+      };
+
+      void cleanupStaleWorkers();
       return;
     }
 

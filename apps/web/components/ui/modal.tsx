@@ -12,9 +12,18 @@ interface ModalProps {
   description?: string;
   children: React.ReactNode;
   className?: string;
+  scrollContent?: boolean;
 }
 
-export function Modal({ isOpen, onClose, title, description, children, className }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  description,
+  children,
+  className,
+  scrollContent = true,
+}: ModalProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
@@ -86,7 +95,7 @@ export function Modal({ isOpen, onClose, title, description, children, className
     <AnimatePresence>
       {isOpen ? (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/82 p-4 sm:p-6"
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
@@ -103,7 +112,8 @@ export function Modal({ isOpen, onClose, title, description, children, className
           <motion.div
             ref={panelRef}
             className={cn(
-              "glass-card gradient-border relative w-full max-w-lg rounded-2xl p-5 shadow-2xl",
+              "glass-card gradient-border relative flex w-full max-w-lg flex-col rounded-2xl border border-white/10 p-5 shadow-2xl sm:p-6",
+              "max-h-[80vh]",
               className,
             )}
             tabIndex={-1}
@@ -128,7 +138,7 @@ export function Modal({ isOpen, onClose, title, description, children, className
                 {description}
               </p>
             ) : null}
-            <div className="mt-4">{children}</div>
+            <div className={cn("mt-4 min-h-0", scrollContent ? "overflow-y-auto pr-1" : "")}>{children}</div>
           </motion.div>
         </motion.div>
       ) : null}

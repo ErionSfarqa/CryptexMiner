@@ -65,10 +65,10 @@ function PaymentSuccessContent() {
   }, [orderId]);
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-4 py-10 sm:px-6">
-      <Card className="w-full rounded-2xl">
+    <main className="ui-container ui-section-marketing flex min-h-screen w-full items-center">
+      <Card className="w-full max-w-3xl">
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Payment Verification</p>
-        <h1 className="mt-2 text-3xl font-semibold text-white">Payment status</h1>
+        <h1 className="ui-h2 mt-2 text-white">Payment status</h1>
 
         {state === "verifying" || state === "idle" ? (
           <p className="mt-3 text-sm text-slate-300">Verifying your payment with PayPal...</p>
@@ -85,7 +85,7 @@ function PaymentSuccessContent() {
 
         {state === "pending" ? (
           <div className="mt-4 rounded-xl border border-amber-400/35 bg-amber-500/10 p-4">
-            <p className="text-sm text-amber-100 whitespace-normal break-words">
+            <p className="text-sm text-amber-100">
               {errorMessage ?? "Payment confirmation pending. Contact support if you were charged."}
             </p>
           </div>
@@ -114,8 +114,8 @@ export default function PaymentSuccessPage() {
   return (
     <Suspense
       fallback={
-        <main className="mx-auto flex min-h-screen w-full max-w-3xl items-center px-4 py-10 sm:px-6">
-          <Card className="w-full rounded-2xl">
+        <main className="ui-container ui-section-marketing flex min-h-screen w-full items-center">
+          <Card className="w-full max-w-3xl">
             <p className="text-sm text-slate-300">Loading payment status...</p>
           </Card>
         </main>

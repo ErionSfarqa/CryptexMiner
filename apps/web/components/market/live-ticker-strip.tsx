@@ -13,9 +13,9 @@ export function LiveTickerStrip() {
 
   if (isPending) {
     return (
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {symbols.map((symbol) => (
-          <Skeleton key={symbol} className="h-20 rounded-2xl" />
+          <Skeleton key={symbol} className="h-24 rounded-2xl" />
         ))}
       </div>
     );
@@ -30,7 +30,7 @@ export function LiveTickerStrip() {
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {data.data.map((ticker, index) => {
         const isPositive = ticker.priceChangePercent >= 0;
         const price = formatCurrency(ticker.lastPrice, "USD");
@@ -38,7 +38,7 @@ export function LiveTickerStrip() {
         return (
           <motion.article
             key={ticker.symbol}
-            className="glass-card gradient-border rounded-2xl p-4"
+            className="glass-card card-hover gradient-border rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

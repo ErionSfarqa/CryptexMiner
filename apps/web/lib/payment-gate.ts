@@ -15,6 +15,11 @@ let snapshot: PaymentSnapshot = {
   isPaid: false,
   isChecking: true,
 };
+const SERVER_SNAPSHOT: PaymentSnapshot = Object.freeze({
+  isHydrated: false,
+  isPaid: false,
+  isChecking: true,
+});
 
 let started = false;
 const listeners = new Set<() => void>();
@@ -93,15 +98,7 @@ function subscribe(listener: () => void) {
 }
 
 export function usePaymentGate() {
-  const state = useSyncExternalStore(
-    subscribe,
-    () => snapshot,
-    () => ({
-      isHydrated: false,
-      isPaid: false,
-      isChecking: true,
-    }),
-  );
+  const state = useSyncExternalStore(subscribe, () => snapshot, () => SERVER_SNAPSHOT);
 
   return {
     isHydrated: state.isHydrated,

@@ -13,6 +13,10 @@
   --color-negative: #fb7185;
   --glow-1: rgba(24, 198, 188, 0.32);
   --glow-2: rgba(86, 215, 255, 0.22);
+  --surface-1: rgba(255, 255, 255, 0.03);
+  --surface-2: rgba(255, 255, 255, 0.05);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --focus-ring: rgba(42, 210, 201, 0.75);
 }
 
 @theme inline {
@@ -21,6 +25,7 @@
 
 * {
   box-sizing: border-box;
+  min-width: 0;
 }
 
 html,
@@ -29,8 +34,9 @@ body {
   background: radial-gradient(circle at 8% 0%, #132741 0%, transparent 42%),
     radial-gradient(circle at 88% 20%, #12314f 0%, transparent 38%),
     linear-gradient(180deg, #060d1a 0%, #050b16 100%);
-  writing-mode: horizontal-tb;
-  text-orientation: mixed;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  overflow-x: clip;
 }
 
 body {
@@ -40,6 +46,7 @@ body {
   overflow-x: hidden;
   word-break: normal;
   overflow-wrap: anywhere;
+  line-break: auto;
 }
 
 h1,
@@ -49,6 +56,20 @@ h4,
 h5 {
   font-family: var(--font-heading), sans-serif;
   letter-spacing: -0.02em;
+}
+
+:where(h1, h2, h3, h4, h5, h6, p, a, span, li, label, button, td, th) {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+img,
+svg,
+canvas,
+video {
+  max-width: 100%;
 }
 
 a {
@@ -68,14 +89,29 @@ textarea {
 }
 
 .focus-ring:focus-visible {
-  outline: 2px solid #2ad2c9;
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
 .glass-card {
-  background: linear-gradient(160deg, rgba(11, 23, 39, 0.96), rgba(12, 26, 45, 0.86));
-  border: 1px solid var(--color-border);
-  box-shadow: 0 24px 60px rgba(4, 8, 18, 0.45);
+  background: linear-gradient(165deg, rgba(16, 26, 43, 0.92), rgba(8, 17, 31, 0.88));
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 18px 40px rgba(4, 8, 18, 0.38);
+}
+
+.card-hover {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-1px);
+  border-color: rgba(120, 200, 236, 0.42);
+  box-shadow: 0 22px 50px rgba(6, 11, 24, 0.45), 0 0 0 1px rgba(78, 190, 229, 0.14) inset;
 }
 
 .gradient-border {
@@ -88,11 +124,123 @@ textarea {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(140deg, rgba(42, 210, 201, 0.65), rgba(124, 218, 255, 0.22));
+  background: linear-gradient(140deg, rgba(42, 210, 201, 0.42), rgba(124, 218, 255, 0.18));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
+}
+
+.ui-container {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .ui-container {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ui-container {
+    padding-inline: 2rem;
+  }
+}
+
+.ui-section-marketing {
+  padding-block: 4rem;
+}
+
+.ui-section-app {
+  padding-block: 2.5rem;
+}
+
+.ui-h1 {
+  font-size: 2rem;
+  line-height: 1.08;
+  font-weight: 600;
+}
+
+@media (min-width: 640px) {
+  .ui-h1 {
+    font-size: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ui-h1 {
+    font-size: 3rem;
+  }
+}
+
+.ui-h2 {
+  font-size: 1.75rem;
+  line-height: 1.14;
+  font-weight: 600;
+}
+
+@media (min-width: 1024px) {
+  .ui-h2 {
+    font-size: 2rem;
+  }
+}
+
+.ui-body {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.ui-muted {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid rgba(130, 193, 221, 0.35);
+  background: rgba(21, 52, 79, 0.45);
+  padding: 0.2rem 0.62rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #c7e4f9;
+}
+
+.ui-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(126, 149, 178, 0.55);
+  background: rgba(5, 13, 27, 0.8);
+  padding: 0.6rem 0.78rem;
+  font-size: 0.9rem;
+  color: #f8fbff;
+}
+
+.ui-input::placeholder {
+  color: rgba(143, 166, 197, 0.8);
+}
+
+.ui-input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-color: rgba(103, 214, 208, 0.8);
+}
+
+.mobile-safe-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
+}
+
+.code-hash {
+  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
 @keyframes soft-float {
@@ -144,6 +292,12 @@ textarea {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.paypal-hosted-root {
+  width: 100%;
+  max-width: 360px;
+  margin-inline: auto;
 }
 
 .paypal-hosted-root iframe,

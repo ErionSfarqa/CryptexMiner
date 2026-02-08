@@ -258,14 +258,14 @@ export default function MiningPage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <Toast message={toast} />
 
-      <Card className="rounded-2xl">
+      <Card>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Mining Engine</p>
-            <h1 className="mt-1 text-2xl font-semibold text-white">Core Control</h1>
+            <h1 className="ui-h2 mt-1 text-white">Core Control</h1>
             <p className="mt-2 text-sm text-slate-300">{calibrationText}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -275,10 +275,10 @@ export default function MiningPage() {
                 type="button"
                 disabled={isRunning}
                 onClick={() => setSelectedCoin(coin)}
-                className={`focus-ring rounded-xl border px-3 py-2 text-sm font-semibold transition ${
+                className={`focus-ring h-10 rounded-xl border px-3 text-sm font-semibold transition ${
                   selectedCoin === coin
                     ? "border-cyan-300/80 bg-cyan-300/20 text-cyan-100"
-                    : "border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-500"
+                    : "border-white/20 bg-slate-900/60 text-slate-300 hover:border-cyan-300/45 hover:text-white"
                 } ${isRunning ? "opacity-70" : ""}`}
               >
                 {coin}
@@ -315,7 +315,7 @@ export default function MiningPage() {
       </Card>
 
       <div className="grid gap-4 xl:grid-cols-[1.35fr_1fr]">
-        <Card className="rounded-2xl p-3 sm:p-4">
+        <Card className="p-3 sm:p-4">
           <CoreAnimation
             isRunning={isRunning}
             warmupRemaining={warmupRemaining}
@@ -326,9 +326,9 @@ export default function MiningPage() {
           />
         </Card>
 
-        <Card className="rounded-2xl">
+        <Card>
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Live Core Metrics</p>
-          <div className="mt-4 grid gap-3">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
             <div className="rounded-xl border border-slate-700/65 bg-slate-900/60 p-3">
               <p className="text-xs text-slate-400">Core Rate</p>
               <p className="mt-1 inline-flex items-center gap-2 text-lg font-semibold text-white">
@@ -363,7 +363,7 @@ export default function MiningPage() {
         </Card>
       </div>
 
-      <Card className="rounded-2xl">
+      <Card>
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Event Stream</p>
         <div className="mt-4 space-y-2">
           {eventFeed.length === 0 ? (
@@ -372,10 +372,10 @@ export default function MiningPage() {
             eventFeed.map((event) => (
               <div
                 key={event.id}
-                className="flex items-center justify-between rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2 text-sm"
+                className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2 text-sm"
               >
-                <span className="text-slate-200">{event.text}</span>
-                <span className="text-xs text-slate-400">{new Date(event.time).toLocaleTimeString()}</span>
+                <span className="truncate text-slate-200">{event.text}</span>
+                <span className="shrink-0 text-xs text-slate-400">{new Date(event.time).toLocaleTimeString()}</span>
               </div>
             ))
           )}

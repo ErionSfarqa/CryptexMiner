@@ -60,7 +60,7 @@ function LogoDropdown<T extends string>({ label, value, onChange, options, fallb
       <p className="mb-1 text-sm text-slate-200">{label}</p>
       <button
         type="button"
-        className="focus-ring flex w-full items-center justify-between rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-slate-100"
+        className="focus-ring ui-input flex items-center justify-between gap-2 py-2 text-sm text-slate-100"
         onClick={() => setOpen((previous) => !previous)}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -79,7 +79,7 @@ function LogoDropdown<T extends string>({ label, value, onChange, options, fallb
 
       {open ? (
         <div
-          className="absolute z-30 mt-2 w-full overflow-hidden rounded-xl border border-slate-600 bg-slate-950/95 shadow-lg"
+          className="absolute z-30 mt-2 w-full overflow-hidden rounded-xl border border-white/15 bg-slate-950/95 shadow-lg"
           role="listbox"
         >
           {options.map((option) => {
@@ -160,6 +160,7 @@ export function AddressModal({ isOpen, onClose, onSubmit, initial }: AddressModa
       onClose={onClose}
       title={title}
       description="Watch-only entries are stored locally on this device."
+      scrollContent={false}
     >
       <form
         className="space-y-4"
@@ -206,8 +207,8 @@ export function AddressModal({ isOpen, onClose, onSubmit, initial }: AddressModa
               setShowAddressError(false);
             }}
             rows={3}
-            className={`focus-ring mt-1 w-full rounded-xl border bg-slate-900/70 px-3 py-2 text-sm text-white ${
-              shouldShowAddressError ? "border-rose-400/70" : "border-slate-600"
+            className={`ui-input mt-1 min-h-[6rem] ${
+              shouldShowAddressError ? "border-rose-400/70" : ""
             }`}
             placeholder={networkPlaceholder[network]}
             required
@@ -220,7 +221,7 @@ export function AddressModal({ isOpen, onClose, onSubmit, initial }: AddressModa
           <input
             value={label}
             onChange={(event) => setLabel(event.target.value)}
-            className="focus-ring mt-1 w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm text-white"
+            className="ui-input mt-1"
             placeholder={`${providerById(provider).label} ${networkById(network).label}`}
           />
         </label>

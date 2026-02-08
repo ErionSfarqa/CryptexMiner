@@ -55,18 +55,18 @@ export default function MarketsPage() {
   const hasUnavailable = tickerQuery.data?.stale || chartQuery.data?.stale;
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-5">
       {hasUnavailable ? (
         <div className="rounded-xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
           Live data unavailable. Displaying last known real Binance values.
         </div>
       ) : null}
 
-      <Card className="rounded-2xl">
+      <Card>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Markets</p>
-            <h1 className="mt-1 text-2xl font-semibold text-white">{selectedSymbol}</h1>
+            <h1 className="ui-h2 mt-1 text-white">{selectedSymbol}</h1>
             <p className="mt-1 text-sm text-slate-300">
               {selectedTicker ? formatCurrency(selectedTicker.lastPrice, "USD") : "Unavailable / Stale"}
             </p>
@@ -77,10 +77,10 @@ export default function MarketsPage() {
                 key={interval}
                 type="button"
                 onClick={() => setSelectedInterval(interval)}
-                className={`focus-ring rounded-lg border px-3 py-1.5 text-sm font-medium ${
+                className={`focus-ring h-9 rounded-xl border px-3 text-sm font-medium ${
                   selectedInterval === interval
                     ? "border-cyan-300/70 bg-cyan-300/20 text-cyan-100"
-                    : "border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-500"
+                    : "border-white/20 bg-slate-900/60 text-slate-300 hover:border-cyan-300/45 hover:text-white"
                 }`}
               >
                 {interval}
@@ -89,7 +89,7 @@ export default function MarketsPage() {
           </div>
         </div>
 
-        <div className="mt-5 h-[19rem] sm:h-[23rem]">
+        <div className="mt-5 h-[18rem] sm:h-[22rem]">
           {chartQuery.isPending ? (
             <Skeleton className="h-full w-full rounded-2xl" />
           ) : chartData.length === 0 ? (
@@ -154,7 +154,7 @@ export default function MarketsPage() {
         <p className="mt-3 text-xs text-slate-400">Last updated: {lastUpdated ? nowLabel(lastUpdated) : "Unavailable"}</p>
       </Card>
 
-      <Card className="rounded-2xl overflow-hidden p-0">
+      <Card className="overflow-hidden p-0">
         <div className="overflow-x-auto no-scrollbar">
           <table className="w-full min-w-[640px] border-collapse text-sm">
             <thead>
@@ -183,7 +183,7 @@ export default function MarketsPage() {
                       <tr
                         key={symbol}
                         className={`cursor-pointer border-b border-slate-800/60 transition hover:bg-slate-900/45 ${
-                          selectedSymbol === symbol ? "bg-slate-900/40" : ""
+                          selectedSymbol === symbol ? "bg-cyan-400/10" : ""
                         }`}
                         onClick={() => setSelectedSymbol(symbol)}
                         onKeyDown={(event) => {
