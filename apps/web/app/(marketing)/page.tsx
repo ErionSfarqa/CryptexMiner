@@ -227,64 +227,67 @@ export default function MarketingPage() {
           </motion.article>
 
           <motion.div
+            className="mx-auto w-full max-w-6xl px-4 sm:px-6"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.28 }}
           >
-            <Card className="mx-auto w-full max-w-md rounded-2xl border-cyan-400/35 bg-[linear-gradient(150deg,rgba(13,27,44,0.9),rgba(11,21,36,0.82))]">
-              <div className="space-y-5">
-                <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Unlock Access</p>
-                    <h3 className="mt-2 text-2xl font-semibold text-white">One-time PayPal activation</h3>
-                    <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-slate-300">
-                      Complete checkout to unlock installer downloads and activate access across devices.
+            <div className="flex justify-center">
+              <Card className="mx-auto w-full max-w-lg rounded-2xl border-cyan-400/35 bg-[linear-gradient(150deg,rgba(13,27,44,0.9),rgba(11,21,36,0.82))]">
+                <div className="space-y-4">
+                  <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Unlock Access</p>
+                      <h3 className="mt-2 text-2xl font-semibold text-white">One-time PayPal activation</h3>
+                      <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-slate-300">
+                        Complete checkout to unlock installer downloads and activate access across devices.
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
+                      <Lock className="h-3.5 w-3.5" />
+                      Secure checkout
+                    </span>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-700/65 bg-slate-900/55 p-4">
+                    <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
+                    <p className="mt-3 whitespace-normal break-words text-center text-xs text-slate-400">
+                      After checkout, return to the Install page to download.
                     </p>
                   </div>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
-                    <Lock className="h-3.5 w-3.5" />
-                    Secure checkout
-                  </span>
-                </div>
 
-                <div className="rounded-2xl border border-slate-700/65 bg-slate-900/55 p-4">
-                  <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
-                  <p className="mt-3 whitespace-normal break-words text-center text-xs text-slate-400">
-                    After checkout, return to the Install page to download.
-                  </p>
-                </div>
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    <div className="flex items-start gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2">
+                      <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                      <p className="text-xs text-slate-200">PayPal secure checkout</p>
+                    </div>
+                    <div className="flex items-start gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2">
+                      <ShieldCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                      <p className="text-xs text-slate-200">No card details stored on our servers</p>
+                    </div>
+                    <div className="flex items-start gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2">
+                      <Smartphone className="mt-0.5 h-4 w-4 text-cyan-300" />
+                      <p className="text-xs text-slate-200">Instant unlock on confirmation</p>
+                    </div>
+                  </div>
 
-                <div className="grid gap-2 sm:grid-cols-3">
-                  <div className="flex items-start gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2">
-                    <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
-                    <p className="text-xs text-slate-200">PayPal secure checkout</p>
-                  </div>
-                  <div className="flex items-start gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2">
-                    <ShieldCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
-                    <p className="text-xs text-slate-200">No card details stored on our servers</p>
-                  </div>
-                  <div className="flex items-start gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2">
-                    <Smartphone className="mt-0.5 h-4 w-4 text-cyan-300" />
-                    <p className="text-xs text-slate-200">Instant unlock on confirmation</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Link href="/install" className="w-full sm:w-auto">
+                      <Button className="w-full" size="sm">
+                        Open Install Page
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Link href="/app/markets" className="w-full sm:w-auto">
+                      <Button className="w-full" size="sm" variant="secondary">
+                        View Live Markets
+                      </Button>
+                    </Link>
                   </div>
                 </div>
-
-                <div className="flex flex-wrap gap-2">
-                  <Link href="/install" className="w-full sm:w-auto">
-                    <Button className="w-full" size="sm">
-                      Open Install Page
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href="/app/markets" className="w-full sm:w-auto">
-                    <Button className="w-full" size="sm" variant="secondary">
-                      View Live Markets
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           </motion.div>
         </section>
 

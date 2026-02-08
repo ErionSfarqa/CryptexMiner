@@ -72,8 +72,6 @@ export default function InstallPage() {
   const [androidMessage, setAndroidMessage] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [pendingPlatform, setPendingPlatform] = useState<Platform | null>(null);
-  const [paywallMessage, setPaywallMessage] = useState<string | null>(null);
-  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const userAgent = useSyncExternalStore(
@@ -146,7 +144,6 @@ export default function InstallPage() {
       const hasEntitlement = canInstall || (await refreshEntitlement());
       if (!hasEntitlement) {
         setPendingPlatform(platform);
-        setPaywallMessage(null);
         setShowPaywallModal(true);
         return;
       }
@@ -155,32 +152,6 @@ export default function InstallPage() {
     },
     [canInstall, refreshEntitlement, startInstallation],
   );
-
-  const handleRefreshStatus = useCallback(async () => {
-    if (isCheckingStatus) {
-      return;
-    }
-
-    setIsCheckingStatus(true);
-    setPaywallMessage(null);
-
-    const unlocked = await refreshEntitlement();
-    setIsCheckingStatus(false);
-
-    if (!unlocked) {
-      setPaywallMessage("Payment not confirmed yet. If you completed checkout, wait a moment and try again.");
-      return;
-    }
-
-    setShowPaywallModal(false);
-    showToast("Installation unlocked");
-
-    if (pendingPlatform) {
-      const platform = pendingPlatform;
-      setPendingPlatform(null);
-      await startInstallation(platform);
-    }
-  }, [isCheckingStatus, pendingPlatform, refreshEntitlement, showToast, startInstallation]);
 
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {
@@ -203,6 +174,33 @@ export default function InstallPage() {
       window.removeEventListener("focus", onFocus);
     };
   }, [refreshEntitlement]);
+
+  useEffect(() => {
+    if (!showPaywallModal || !pendingPlatform) {
+      return;
+    }
+
+    let cancelled = false;
+    const timer = window.setInterval(() => {
+      void (async () => {
+        const unlocked = await refreshEntitlement();
+        if (!unlocked || cancelled) {
+          return;
+        }
+
+        setShowPaywallModal(false);
+        showToast("Installation unlocked");
+        const platform = pendingPlatform;
+        setPendingPlatform(null);
+        await startInstallation(platform);
+      })();
+    }, 3500);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [pendingPlatform, refreshEntitlement, showPaywallModal, showToast, startInstallation]);
 
   useEffect(() => {
     return () => {
@@ -298,62 +296,38 @@ export default function InstallPage() {
         isOpen={showPaywallModal}
         onClose={() => {
           setShowPaywallModal(false);
-          setPaywallMessage(null);
         }}
         title="Unlock access"
-        description="Complete payment with PayPal to unlock installation."
+        description="Complete secure checkout to continue installation."
+        className="max-h-[80vh] overflow-hidden p-4 sm:max-h-[85vh] sm:p-5"
       >
-        <div className="space-y-4">
-          <Card className="rounded-xl border-slate-700/65 bg-slate-900/55 p-4">
-            <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
-              <div>
-                <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Unlock Access</p>
-                <h3 className="mt-2 text-xl font-semibold text-white">Secure PayPal checkout</h3>
-                <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-slate-300">
-                  Complete checkout to unlock installation. After payment, return here and refresh your status.
-                </p>
+        <div className="flex max-h-[calc(80vh-7.5rem)] flex-col sm:max-h-[calc(85vh-8rem)]">
+          <div className="overflow-y-auto pr-1">
+            <Card className="rounded-xl border-slate-700/65 bg-slate-900/55 p-4">
+              <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Payment required</p>
+              <h3 className="mt-1 text-lg font-semibold text-white whitespace-normal break-words">Secure PayPal checkout</h3>
+              <ul className="mt-3 space-y-2">
+                <li className="flex items-start gap-2 text-xs text-slate-200">
+                  <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                  <span className="whitespace-normal break-words">Encrypted one-time payment</span>
+                </li>
+                <li className="flex items-start gap-2 text-xs text-slate-200">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                  <span className="whitespace-normal break-words">No card details stored on our servers</span>
+                </li>
+                <li className="flex items-start gap-2 text-xs text-slate-200">
+                  <Lock className="mt-0.5 h-4 w-4 text-cyan-300" />
+                  <span className="whitespace-normal break-words">Unlocks automatically after confirmation</span>
+                </li>
+              </ul>
+              <div className="mt-3 rounded-2xl border border-slate-700/65 bg-slate-950/10 p-3">
+                <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
               </div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
-                <Lock className="h-3.5 w-3.5" />
-                Encrypted checkout
-              </span>
-            </div>
-
-            <div className="mt-4 grid gap-2 sm:grid-cols-3">
-              <div className="flex items-start gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2">
-                <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
-                <p className="text-xs text-slate-200">PayPal secure checkout</p>
-              </div>
-              <div className="flex items-start gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2">
-                <ShieldCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
-                <p className="text-xs text-slate-200">No card details stored on our servers</p>
-              </div>
-              <div className="flex items-start gap-2 rounded-xl border border-slate-700/65 bg-slate-900/40 px-3 py-2">
-                <Lock className="mt-0.5 h-4 w-4 text-cyan-300" />
-                <p className="text-xs text-slate-200">EUR checkout</p>
-              </div>
-            </div>
-
-            <div className="mt-4 rounded-2xl border border-slate-700/65 bg-slate-950/10 p-4">
-              <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
-              <p className="mt-3 whitespace-normal break-words text-center text-xs text-slate-400">
-                After checkout, tap Refresh status to continue.
-              </p>
-            </div>
-          </Card>
-
-          {paywallMessage ? (
-            <p className="whitespace-normal break-words rounded-xl border border-amber-400/35 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
-              {paywallMessage}
-            </p>
-          ) : null}
-
-          <div className="flex flex-wrap justify-end gap-2">
-            <Button className="w-full sm:w-auto" variant="secondary" onClick={() => setShowPaywallModal(false)}>
+            </Card>
+          </div>
+          <div className="mt-3 border-t border-slate-700/65 pt-3">
+            <Button className="w-full" variant="secondary" onClick={() => setShowPaywallModal(false)}>
               Close
-            </Button>
-            <Button className="w-full sm:w-auto" onClick={() => void handleRefreshStatus()} disabled={isCheckingStatus}>
-              {isCheckingStatus ? "Checking..." : "Refresh status"}
             </Button>
           </div>
         </div>
