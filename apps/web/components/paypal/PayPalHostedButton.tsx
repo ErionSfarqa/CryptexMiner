@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 interface PayPalHostedButtonProps {
@@ -108,7 +109,16 @@ export function PayPalHostedButton({ hostedButtonId, containerId, className }: P
 
   return (
     <div className={cn("space-y-2", className)}>
-      <div id={containerId} />
+      <div className="relative min-h-[56px]">
+        {renderStatus === "loading" ? <Skeleton className="h-12 w-full rounded-xl" /> : null}
+        <div
+          id={containerId}
+          className={cn(
+            "paypal-hosted-root flex min-h-[52px] items-center justify-center",
+            renderStatus === "loading" ? "absolute inset-0 opacity-0" : "opacity-100",
+          )}
+        />
+      </div>
       {renderStatus === "loading" ? (
         <p className="text-xs text-slate-400">Loading secure checkout...</p>
       ) : null}
@@ -123,4 +133,3 @@ export function PayPalHostedButton({ hostedButtonId, containerId, className }: P
     </div>
   );
 }
-

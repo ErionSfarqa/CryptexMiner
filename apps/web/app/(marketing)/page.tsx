@@ -22,33 +22,6 @@ const featureStats = [
 const PAYPAL_HOSTED_BUTTON_ID = "GVDXTBZQFAVD4";
 const PAYPAL_CONTAINER_ID = "paypal-container-GVDXTBZQFAVD4";
 
-const securePaymentSections = [
-  {
-    title: "Secure Checkout",
-    body: "Pay in EUR with PayPal hosted checkout in a protected flow designed for fast completion.",
-    bullets: ["Encrypted transfer", "Hosted by PayPal", "Transparent payment step"],
-    badges: ["Secure Checkout", "EUR Pricing"],
-    visual: "/secure-pay/pay-1.png",
-    visualAlt: "Secure checkout illustration",
-  },
-  {
-    title: "Protected Payments",
-    body: "Every purchase route uses trusted payment infrastructure so checkout remains clear and reliable.",
-    bullets: ["PayPal buyer protection", "No hidden redirects", "Clean confirmation flow"],
-    badges: ["Buyer Protection", "Verified Flow"],
-    visual: "/secure-pay/pay-2.png",
-    visualAlt: "Protected payment illustration",
-  },
-  {
-    title: "Instant Access",
-    body: "After checkout, activation instructions are shown immediately in-app so users can continue without friction.",
-    bullets: ["In-app activation state", "No hard page refresh", "Works with client navigation"],
-    badges: ["Fast Activation", "Production Ready"],
-    visual: "/secure-pay/pay-3.png",
-    visualAlt: "Instant access illustration",
-  },
-] as const;
-
 export default function MarketingPage() {
   const { isPaid } = usePaymentGate();
 
@@ -74,7 +47,7 @@ export default function MarketingPage() {
         ))}
       </div>
 
-      <header className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-6 sm:px-6">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-6 sm:px-6">
         <Link href="/" className="focus-ring rounded-lg px-2 py-1 text-sm font-semibold uppercase tracking-[0.24em] text-cyan-100">
           Cryptex Miner
         </Link>
@@ -83,7 +56,7 @@ export default function MarketingPage() {
         </Link>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl space-y-14 px-4 pb-20 sm:px-6">
+      <main className="mx-auto w-full max-w-6xl space-y-14 px-4 pb-20 sm:px-6">
         <section className="grid gap-10 pt-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
             <motion.p
@@ -166,7 +139,7 @@ export default function MarketingPage() {
           </Card>
         </section>
 
-        <section id="secure-payment" className="space-y-5">
+        <section id="secure-payment" className="space-y-6">
           <motion.div
             className="max-w-2xl"
             initial={{ opacity: 0, y: 14 }}
@@ -181,60 +154,65 @@ export default function MarketingPage() {
             </p>
           </motion.div>
 
-          <div className="space-y-4">
-            {securePaymentSections.map((section, index) => (
-              <motion.article
-                key={section.title}
-                className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] lg:items-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.28 }}
-                transition={{ duration: 0.3, delay: index * 0.06 }}
-              >
-                <motion.div
-                  className="rounded-2xl border border-slate-700/65 bg-slate-900/55 p-5"
-                  whileHover={{ y: -2 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">{section.title}</p>
-                  <h3 className="mt-2 text-2xl font-semibold text-white">{section.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">{section.body}</p>
-                  <ul className="mt-4 space-y-2">
-                    {section.bullets.map((bullet) => (
-                      <li key={bullet} className="inline-flex items-center gap-2 text-sm text-slate-200">
-                        <BadgeCheck className="h-4 w-4 text-cyan-300" />
-                        {bullet}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {section.badges.map((badge) => (
-                      <span
-                        key={badge}
-                        className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100"
-                      >
-                        {badge}
-                      </span>
-                    ))}
-                  </div>
-                </motion.div>
+          <motion.article
+            className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr] lg:items-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.28 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="rounded-2xl border border-slate-700/65 bg-slate-900/55 p-5"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}
+            >
+              <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Pay Securely</p>
+              <h3 className="mt-2 text-2xl font-semibold text-white">Pay securely with trusted checkout</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-300">
+                One clear payment step, professional checkout UX, and entitlement-based access unlock on successful
+                payment verification.
+              </p>
+              <ul className="mt-4 space-y-2">
+                <li className="flex items-start gap-2 text-sm text-slate-200">
+                  <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                  PayPal secure checkout
+                </li>
+                <li className="flex items-start gap-2 text-sm text-slate-200">
+                  <Lock className="mt-0.5 h-4 w-4 text-cyan-300" />
+                  No card details stored on our servers
+                </li>
+                <li className="flex items-start gap-2 text-sm text-slate-200">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                  Activation instructions shown after payment
+                </li>
+              </ul>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
+                  Encrypted transfer
+                </span>
+                <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
+                  Buyer protection
+                </span>
+                <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
+                  EUR checkout
+                </span>
+              </div>
+            </motion.div>
 
-                <motion.div
-                  className="group overflow-hidden rounded-2xl border border-slate-700/65 bg-slate-900/55 p-2"
-                  whileHover={{ y: -2 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Image
-                    src={section.visual}
-                    alt={section.visualAlt}
-                    width={1200}
-                    height={800}
-                    className="h-full w-full rounded-xl object-cover transition duration-300 group-hover:scale-[1.01]"
-                  />
-                </motion.div>
-              </motion.article>
-            ))}
-          </div>
+            <motion.div
+              className="group overflow-hidden rounded-2xl border border-slate-700/65 bg-slate-900/55 p-2"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Image
+                src="/secure-pay/secure-pay.png"
+                alt="Secure checkout via PayPal"
+                width={1200}
+                height={800}
+                className="h-full w-full rounded-xl object-cover transition duration-300 group-hover:scale-[1.01]"
+              />
+            </motion.div>
+          </motion.article>
 
           <motion.div
             initial={{ opacity: 0, y: 14 }}
@@ -242,32 +220,47 @@ export default function MarketingPage() {
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.28 }}
           >
-            <Card className="rounded-2xl border-cyan-400/35 bg-[linear-gradient(150deg,rgba(13,27,44,0.9),rgba(11,21,36,0.82))]">
-              <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-start">
+            <Card className="mx-auto w-full max-w-md rounded-2xl border-cyan-400/35 bg-[linear-gradient(150deg,rgba(13,27,44,0.9),rgba(11,21,36,0.82))]">
+              <div className="space-y-4 text-center">
                 <div>
                   <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Unlock Access</p>
                   <h3 className="mt-2 text-2xl font-semibold text-white">Unlock Access</h3>
-                  <p className="mt-2 text-sm text-slate-300">Pay with PayPal (EUR).</p>
-                  <ul className="mt-4 space-y-2">
-                    <li className="inline-flex items-center gap-2 text-sm text-slate-200">
-                      <ShieldCheck className="h-4 w-4 text-cyan-300" />
-                      PayPal secure checkout
-                    </li>
-                    <li className="inline-flex items-center gap-2 text-sm text-slate-200">
-                      <Lock className="h-4 w-4 text-cyan-300" />
-                      No card details stored on our servers
-                    </li>
-                    <li className="inline-flex items-center gap-2 text-sm text-slate-200">
-                      <BadgeCheck className="h-4 w-4 text-cyan-300" />
-                      Activation instructions shown after payment
-                    </li>
-                  </ul>
+                  <p className="mt-2 text-sm text-slate-300">Pay with PayPal (EUR) to activate installation.</p>
                 </div>
-                <div className="w-full max-w-md rounded-xl border border-slate-700/65 bg-slate-900/55 p-4">
+
+                <div className="rounded-xl border border-slate-700/65 bg-slate-900/55 p-3">
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
+                      Secure checkout via PayPal
+                    </span>
+                    <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
+                      Instant entitlement check
+                    </span>
+                  </div>
+                </div>
+
+                <ul className="space-y-2 text-left">
+                  <li className="flex items-start gap-2 text-sm text-slate-200">
+                    <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                    PayPal secure checkout
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-slate-200">
+                    <Lock className="mt-0.5 h-4 w-4 text-cyan-300" />
+                    No card details stored on our servers
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-slate-200">
+                    <ShieldCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                    Activation instructions shown after payment
+                  </li>
+                </ul>
+
+                <div className="flex justify-center">
+                  <div className="w-full max-w-[340px]">
                   <PayPalHostedButton
                     hostedButtonId={PAYPAL_HOSTED_BUTTON_ID}
                     containerId={PAYPAL_CONTAINER_ID}
                   />
+                  </div>
                 </div>
               </div>
             </Card>

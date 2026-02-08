@@ -14,6 +14,7 @@ interface PaymentSnapshot {
   isHydrated: boolean;
   session: PaymentSession | null;
   hasPaidAccess: boolean;
+  serverPaid: boolean;
 }
 
 const STORAGE_KEY = "cryptex:payment:session";
@@ -25,9 +26,11 @@ let snapshot: PaymentSnapshot = {
   isHydrated: false,
   session: null,
   hasPaidAccess: false,
+  serverPaid: false,
 };
 
 let started = false;
+let serverPaidState = false;
 const listeners = new Set<() => void>();
 
 function emit() {
@@ -69,8 +72,35 @@ function refreshSnapshot() {
     isHydrated: true,
     session: readStoredSession(),
     hasPaidAccess: readPaidAccess(),
+    serverPaid: serverPaidState,
   };
   emit();
+}
+
+async function refreshServerPaid() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/entitlement", {
+      cache: "no-store",
+      credentials: "same-origin",
+    });
+
+    if (!response.ok) {
+      serverPaidState = false;
+      refreshSnapshot();
+      return;
+    }
+
+    const payload = (await response.json()) as { paid?: boolean };
+    serverPaidState = Boolean(payload.paid);
+    refreshSnapshot();
+  } catch {
+    serverPaidState = false;
+    refreshSnapshot();
+  }
 }
 
 function writeStoredSession(session: PaymentSession | null) {
@@ -111,13 +141,16 @@ function startStore() {
 
   started = true;
   refreshSnapshot();
+  void refreshServerPaid();
 
   const sync = () => {
     refreshSnapshot();
+    void refreshServerPaid();
   };
 
   window.addEventListener(UPDATE_EVENT, sync);
   window.addEventListener("storage", sync);
+  window.addEventListener("focus", sync);
 }
 
 function subscribe(listener: () => void) {
@@ -142,6 +175,7 @@ export function clearPaymentSession() {
 
 export function confirmClientPayment() {
   writePaidAccess(true);
+  void refreshServerPaid();
 }
 
 export function usePaymentGate() {
@@ -152,13 +186,14 @@ export function usePaymentGate() {
       isHydrated: false,
       session: null,
       hasPaidAccess: false,
+      serverPaid: false,
     }),
   );
 
   return {
     isHydrated: state.isHydrated,
     paymentSession: state.session,
-    isPaid: IS_DEV || state.hasPaidAccess || Boolean(state.session?.token),
+    isPaid: IS_DEV || state.serverPaid || state.hasPaidAccess || Boolean(state.session?.token),
   };
 }
 
