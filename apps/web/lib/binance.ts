@@ -3,7 +3,10 @@ import { safeParseNumber } from "@/lib/utils";
 export const BINANCE_BASE_URL = "https://api.binance.com";
 
 export type FiatCurrency = "USD" | "EUR";
-export type SupportedCoin = "BTC" | "ETH" | "SOL";
+export const SUPPORTED_ASSETS = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "TON", "DOT"] as const;
+export type SupportedCoin = (typeof SUPPORTED_ASSETS)[number];
+export type MineableCoin = "BTC" | "ETH" | "SOL";
+export const MINEABLE_COINS: MineableCoin[] = ["BTC", "ETH", "SOL"];
 
 export const DEFAULT_MARKET_SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT"] as const;
 
@@ -113,6 +116,10 @@ export function symbolForCoin(coin: SupportedCoin, fiat: FiatCurrency) {
     return `${coin}EUR`;
   }
 
+  return `${coin}USDT`;
+}
+
+export function usdtSymbolForCoin(coin: SupportedCoin) {
   return `${coin}USDT`;
 }
 
@@ -255,17 +262,7 @@ export async function fetchKlinesFromBinance({
 }
 
 export function symbolToCoin(symbol: string): SupportedCoin | null {
-  if (symbol.startsWith("BTC")) {
-    return "BTC";
-  }
-
-  if (symbol.startsWith("ETH")) {
-    return "ETH";
-  }
-
-  if (symbol.startsWith("SOL")) {
-    return "SOL";
-  }
-
-  return null;
+  const normalized = symbol.toUpperCase();
+  const match = SUPPORTED_ASSETS.find((coin) => normalized.startsWith(coin));
+  return match ?? null;
 }

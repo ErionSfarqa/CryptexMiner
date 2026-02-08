@@ -2,13 +2,14 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { FiatCurrency, SupportedCoin } from "@/lib/binance";
+import { SUPPORTED_ASSETS, type FiatCurrency, type MineableCoin, type SupportedCoin } from "@/lib/binance";
 
-export type WalletProvider = "exodus" | "metamask" | "phantom" | "trustwallet" | "coinbase";
+export type WalletProvider = "exodus" | "metamask" | "phantom" | "trustwallet" | "coinbase" | "okx" | "other";
+export type WalletNetwork = "bitcoin" | "ethereum";
 
 export interface MiningActivity {
   id: string;
-  coin: SupportedCoin;
+  coin: MineableCoin;
   amount: number;
   timestamp: number;
   hashrate: number;
@@ -18,7 +19,7 @@ export interface MiningActivity {
 export interface SavedAddress {
   id: string;
   label: string;
-  network: string;
+  network: WalletNetwork;
   address: string;
   provider: WalletProvider;
   createdAt: number;
@@ -41,11 +42,7 @@ interface CryptexState {
   resetLocalData: () => void;
 }
 
-const initialBalances: Record<SupportedCoin, number> = {
-  BTC: 0,
-  ETH: 0,
-  SOL: 0,
-};
+const initialBalances = Object.fromEntries(SUPPORTED_ASSETS.map((coin) => [coin, 0])) as Record<SupportedCoin, number>;
 
 export const useCryptexStore = create<CryptexState>()(
   persist(

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | Cryptex Miner",
   },
   description:
-    "Install in seconds. Mining made easy. Premium simulation interface with live Binance markets.",
+    "Install in seconds. Mining made easy. Premium mining interface with live Binance markets.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [

@@ -5,9 +5,11 @@ import { motion } from "framer-motion";
 import { Flame, Gauge, Play, Square, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Toast } from "@/components/ui/toast";
 import { CoreAnimation } from "@/components/mining/core-animation";
+import { useConnectivity } from "@/lib/connectivity";
 import { formatCrypto } from "@/lib/utils";
-import type { SupportedCoin } from "@/lib/binance";
+import { MINEABLE_COINS, type MineableCoin } from "@/lib/binance";
 import { useCryptexStore } from "@/store/app-store";
 
 const calibrationSteps = [
@@ -16,13 +18,13 @@ const calibrationSteps = [
   { message: "Syncing network...", duration: 2400 },
 ] as const;
 
-const baseHashrate: Record<SupportedCoin, number> = {
+const baseHashrate: Record<MineableCoin, number> = {
   BTC: 146,
   ETH: 312,
   SOL: 528,
 };
 
-const baseReward: Record<SupportedCoin, number> = {
+const baseReward: Record<MineableCoin, number> = {
   BTC: 0.00000075,
   ETH: 0.000012,
   SOL: 0.00025,
@@ -41,8 +43,9 @@ export default function MiningPage() {
   const calibrationComplete = useCryptexStore((state) => state.calibrationComplete);
   const setCalibrationComplete = useCryptexStore((state) => state.setCalibrationComplete);
   const lowPowerAnimations = useCryptexStore((state) => state.lowPowerAnimations);
+  const { isOnline, isHydrated } = useConnectivity();
 
-  const [selectedCoin, setSelectedCoin] = useState<SupportedCoin>("BTC");
+  const [selectedCoin, setSelectedCoin] = useState<MineableCoin>("BTC");
   const [isRunning, setIsRunning] = useState(false);
   const [warmupRemaining, setWarmupRemaining] = useState(8);
   const [calibrationState, setCalibrationState] = useState<CalibrationState>(
@@ -56,9 +59,20 @@ export default function MiningPage() {
   const [rewardPulse, setRewardPulse] = useState(0);
   const [blockPulse, setBlockPulse] = useState(0);
   const [eventFeed, setEventFeed] = useState<EventItem[]>([]);
+  const [toast, setToast] = useState<string | null>(null);
 
   const warmupRef = useRef(8);
   const calibrationTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = useCallback((message: string) => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+
+    setToast(message);
+    toastTimerRef.current = setTimeout(() => setToast(null), 1800);
+  }, []);
 
   const clearCalibrationTimers = useCallback(() => {
     calibrationTimersRef.current.forEach((timerId) => clearTimeout(timerId));
@@ -98,6 +112,23 @@ export default function MiningPage() {
     });
   }, [calibrationState, clearCalibrationTimers, pushEvent, setCalibrationComplete]);
 
+  const stopMining = useCallback(
+    (message?: string) => {
+      setIsRunning(false);
+      setStats((previous) => ({
+        ...previous,
+        hashrate: 0,
+        temperature: Math.max(38, previous.temperature - 6),
+        efficiency: 82,
+      }));
+
+      if (message) {
+        pushEvent(message);
+      }
+    },
+    [pushEvent],
+  );
+
   useEffect(() => {
     if (calibrationState !== "pending") {
       return;
@@ -111,8 +142,27 @@ export default function MiningPage() {
   }, [calibrationState, runCalibration]);
 
   useEffect(() => {
-    return () => clearCalibrationTimers();
+    return () => {
+      clearCalibrationTimers();
+
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    };
   }, [clearCalibrationTimers]);
+
+  useEffect(() => {
+    if (!isHydrated || isOnline || !isRunning) {
+      return;
+    }
+
+    const timerId = window.setTimeout(() => {
+      stopMining("Connection lost. Mining paused.");
+      showToast("Offline — mining paused");
+    }, 0);
+
+    return () => window.clearTimeout(timerId);
+  }, [isHydrated, isOnline, isRunning, showToast, stopMining]);
 
   useEffect(() => {
     if (!isRunning) {
@@ -153,7 +203,7 @@ export default function MiningPage() {
       });
 
       setRewardPulse((value) => value + 1);
-      pushEvent(`+${formatCrypto(reward)} ${selectedCoin} simulated reward`);
+      pushEvent(`+${formatCrypto(reward)} ${selectedCoin} reward recorded`);
 
       if (blockEvent) {
         setBlocksFound((value) => value + 1);
@@ -186,6 +236,12 @@ export default function MiningPage() {
         : "Start Calibration";
 
   const handleStart = () => {
+    if (!isOnline) {
+      showToast("Offline — mining paused");
+      pushEvent("Connect to the internet to resume.");
+      return;
+    }
+
     if (calibrationState !== "ready") {
       runCalibration();
       return;
@@ -198,31 +254,22 @@ export default function MiningPage() {
     setIsRunning(true);
     warmupRef.current = 8;
     setWarmupRemaining(8);
-    pushEvent("Simulation started.");
-  };
-
-  const stopSimulation = () => {
-    setIsRunning(false);
-    setStats((previous) => ({
-      ...previous,
-      hashrate: 0,
-      temperature: Math.max(38, previous.temperature - 6),
-      efficiency: 82,
-    }));
-    pushEvent("Simulation paused.");
+    pushEvent("Mining session started.");
   };
 
   return (
     <div className="space-y-4">
+      <Toast message={toast} />
+
       <Card className="rounded-2xl">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Mining Simulator</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Mining Engine</p>
             <h1 className="mt-1 text-2xl font-semibold text-white">Core Control</h1>
             <p className="mt-2 text-sm text-slate-300">{calibrationText}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {(["BTC", "ETH", "SOL"] as SupportedCoin[]).map((coin) => (
+            {MINEABLE_COINS.map((coin) => (
               <button
                 key={coin}
                 type="button"
@@ -241,15 +288,19 @@ export default function MiningPage() {
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <Button onClick={handleStart} disabled={isRunning || calibrationState === "running"}>
+          <Button onClick={handleStart} disabled={isRunning || calibrationState === "running" || !isOnline}>
             <Play className="h-4 w-4" />
             {startButtonLabel}
           </Button>
-          <Button variant="secondary" onClick={stopSimulation} disabled={!isRunning}>
+          <Button variant="secondary" onClick={() => stopMining("Mining paused.")} disabled={!isRunning}>
             <Square className="h-4 w-4" />
             Stop
           </Button>
-          <p className="text-xs text-slate-400">Simulation only. No real hashing or blockchain operations.</p>
+          {!isOnline ? (
+            <p className="text-xs text-amber-200">Connect to the internet to resume.</p>
+          ) : (
+            <p className="text-xs text-slate-400">No blockchain hashing or consensus operations are executed.</p>
+          )}
         </div>
 
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-800/70">
@@ -276,10 +327,10 @@ export default function MiningPage() {
         </Card>
 
         <Card className="rounded-2xl">
-          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Live Simulation Metrics</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Live Core Metrics</p>
           <div className="mt-4 grid gap-3">
             <div className="rounded-xl border border-slate-700/65 bg-slate-900/60 p-3">
-              <p className="text-xs text-slate-400">Simulated Hashrate</p>
+              <p className="text-xs text-slate-400">Core Rate</p>
               <p className="mt-1 inline-flex items-center gap-2 text-lg font-semibold text-white">
                 <Gauge className="h-4 w-4 text-cyan-300" />
                 {stats.hashrate.toFixed(2)} TH/s
@@ -316,7 +367,7 @@ export default function MiningPage() {
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Event Stream</p>
         <div className="mt-4 space-y-2">
           {eventFeed.length === 0 ? (
-            <p className="text-sm text-slate-400">No events yet. Start simulation to begin reward ticks.</p>
+            <p className="text-sm text-slate-400">No events yet. Start mining to begin reward ticks.</p>
           ) : (
             eventFeed.map((event) => (
               <div

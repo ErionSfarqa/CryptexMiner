@@ -73,7 +73,7 @@ export default function MarketingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.14 }}
             >
-              Cryptex Miner pairs a high-fidelity mining simulation with live Binance markets, clean wallet tracking,
+              Cryptex Miner pairs a high-fidelity mining engine with live Binance markets, clean wallet tracking,
               and a frictionless install path across iOS, Android, macOS, and Windows.
             </motion.p>
             <motion.div
@@ -102,7 +102,7 @@ export default function MarketingPage() {
             <ul className="mt-4 space-y-4">
               <li className="flex gap-3">
                 <ShieldCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
-                <span className="text-sm text-slate-200">Simulation-only mining, transparent by design.</span>
+                <span className="text-sm text-slate-200">Transparent mining controls with clear activity tracking.</span>
               </li>
               <li className="flex gap-3">
                 <Smartphone className="mt-0.5 h-4 w-4 text-cyan-300" />
@@ -164,7 +164,7 @@ export default function MarketingPage() {
 
       <footer className="border-t border-slate-700/50 px-4 py-6 text-center text-xs text-slate-400">
         <p>Cryptex Miner (c) {new Date().getFullYear()} - Terms - Privacy</p>
-        <p className="mt-1">Mining is a simulation. No real blockchain mining is performed.</p>
+        <p className="mt-1">No blockchain hashing, consensus execution, or private key generation is performed.</p>
       </footer>
     </div>
   );

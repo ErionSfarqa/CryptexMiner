@@ -61,7 +61,7 @@ export default function SettingsPage() {
 
       <Card className="rounded-2xl">
         <p className="text-sm text-slate-300">
-          Cryptex Miner is a simulation interface. It does not perform real mining, blockchain validation, or private key generation.
+          Cryptex Miner does not execute blockchain hashing, network validation, or private key generation.
         </p>
       </Card>
 

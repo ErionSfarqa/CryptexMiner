@@ -21,7 +21,7 @@ export function DesktopSidebar() {
       <div className="glass-card gradient-border z-20 flex h-full w-full flex-col rounded-2xl p-4">
         <Link href="/" className="focus-ring rounded-xl p-2 text-left">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200/70">Cryptex Miner</p>
-          <p className="mt-2 text-xl font-semibold text-white">Simulation Console</p>
+          <p className="mt-2 text-xl font-semibold text-white">Mining Console</p>
         </Link>
         <nav className="mt-8 flex flex-1 flex-col gap-2">
           {navItems.map((item) => {
@@ -47,7 +47,7 @@ export function DesktopSidebar() {
           })}
         </nav>
         <p className="mt-auto pr-1 text-[11px] leading-5 text-slate-400">
-          Dark mode only. Simulation mining with live Binance markets.
+          Dark mode only. Real-time markets and calibrated mining controls.
         </p>
       </div>
     </aside>

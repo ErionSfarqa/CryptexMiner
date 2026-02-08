@@ -9,7 +9,7 @@ const tabs = [
   {
     id: "mining",
     title: "Mining",
-    copy: "Run guided calibration, then launch a premium simulation loop with dynamic core visuals and reward pulses.",
+    copy: "Run guided calibration, then launch a premium mining loop with dynamic core visuals and reward pulses.",
     image: "/tour/mining.svg",
   },
   {
@@ -66,7 +66,7 @@ export function ProductTour() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.28 }}
             >
-              <Image src={selected.image} alt={`${selected.title} preview`} fill className="object-cover" />
+              <Image src={selected.image} alt={`${selected.title} panel`} fill className="object-cover" />
             </motion.div>
           </AnimatePresence>
         </div>

@@ -1,7 +1,7 @@
 {
   "name": "Cryptex Miner",
   "short_name": "Cryptex",
-  "description": "Install in seconds. Mining made easy. Simulation mining with live Binance markets.",
+  "description": "Install in seconds. Mining made easy. Premium mining controls with live Binance markets.",
   "start_url": "/app/mining",
   "scope": "/",
   "display": "standalone",
