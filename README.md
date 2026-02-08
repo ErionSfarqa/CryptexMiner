@@ -29,8 +29,8 @@ Required environment variables:
 
 Optional:
 - `PAYPAL_API_BASE` (`https://api-m.sandbox.paypal.com` by default)
-- `PAYPAL_PRICE_AMOUNT` (default `49.00`)
-- `PAYPAL_PRICE_CURRENCY` (default `USD`)
+- `PAYPAL_PRICE_AMOUNT` (default `25.00`)
+- `PAYPAL_PRICE_CURRENCY` (default `EUR`)
 - `PAYPAL_WINDOWS_INSTALLER_PATH`
 - `PAYPAL_MACOS_INSTALLER_PATH`
 

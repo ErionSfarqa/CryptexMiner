@@ -41,8 +41,8 @@ const networks = [
   { name: "Dogecoin", logo: "/network-logos/dogecoin.svg", fallback: "DOGE" },
 ];
 
-const purchaseAmount = process.env.NEXT_PUBLIC_PAYPAL_PRICE_AMOUNT ?? "49.00";
-const purchaseCurrency = process.env.NEXT_PUBLIC_PAYPAL_PRICE_CURRENCY ?? "USD";
+const purchaseAmount = process.env.NEXT_PUBLIC_PAYPAL_PRICE_AMOUNT ?? "25.00";
+const purchaseCurrency = process.env.NEXT_PUBLIC_PAYPAL_PRICE_CURRENCY ?? "EUR";
 
 export default function MarketingPage() {
   const { isPaid } = usePaymentGate();

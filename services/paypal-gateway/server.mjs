@@ -12,8 +12,8 @@ const paypalClientSecret = process.env.PAYPAL_CLIENT_SECRET;
 const paypalApiBase = process.env.PAYPAL_API_BASE ?? "https://api-m.sandbox.paypal.com";
 const tokenSecret = process.env.PAYPAL_GATEWAY_TOKEN_SECRET ?? "";
 
-const defaultAmount = process.env.PAYPAL_PRICE_AMOUNT ?? "49.00";
-const defaultCurrency = process.env.PAYPAL_PRICE_CURRENCY ?? "USD";
+const defaultAmount = process.env.PAYPAL_PRICE_AMOUNT ?? "25.00";
+const defaultCurrency = process.env.PAYPAL_PRICE_CURRENCY ?? "EUR";
 
 const installers = {
   windows: {
