@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { BadgeCheck, Lock, ShieldCheck } from "lucide-react";
-import { PayPalHostedButton } from "@/components/paypal/PayPalHostedButton";
+import { PayPalHostedButton } from "@/components/payments/PayPalHostedButton";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
@@ -309,7 +309,7 @@ export default function InstallPage() {
               <div>
                 <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Unlock Access</p>
                 <h3 className="mt-2 text-xl font-semibold text-white">Secure PayPal checkout</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-300">
+                <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-slate-300">
                   Complete checkout to unlock installation. After payment, return here and refresh your status.
                 </p>
               </div>
@@ -335,17 +335,15 @@ export default function InstallPage() {
             </div>
 
             <div className="mt-4 rounded-2xl border border-slate-700/65 bg-slate-950/10 p-4">
-              <div className="flex justify-center">
-                <div className="w-full max-w-[360px]">
-                  <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
-                </div>
-              </div>
-              <p className="mt-3 text-center text-xs text-slate-400">After checkout, tap Refresh status to continue.</p>
+              <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
+              <p className="mt-3 whitespace-normal break-words text-center text-xs text-slate-400">
+                After checkout, tap Refresh status to continue.
+              </p>
             </div>
           </Card>
 
           {paywallMessage ? (
-            <p className="rounded-xl border border-amber-400/35 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+            <p className="whitespace-normal break-words rounded-xl border border-amber-400/35 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
               {paywallMessage}
             </p>
           ) : null}

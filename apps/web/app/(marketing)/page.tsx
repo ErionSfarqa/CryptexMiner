@@ -8,7 +8,7 @@ import { LiveTickerStrip } from "@/components/market/live-ticker-strip";
 import { ProductTour } from "@/components/marketing/product-tour";
 import { MarketPulsePanel } from "@/components/market/market-pulse";
 import { InstallStepperPreview } from "@/components/marketing/install-stepper-preview";
-import { PayPalHostedButton } from "@/components/paypal/PayPalHostedButton";
+import { PayPalHostedButton } from "@/components/payments/PayPalHostedButton";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { usePaymentGate } from "@/lib/payment-gate";
@@ -238,7 +238,7 @@ export default function MarketingPage() {
                   <div>
                     <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Unlock Access</p>
                     <h3 className="mt-2 text-2xl font-semibold text-white">One-time PayPal activation</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                    <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-slate-300">
                       Complete checkout to unlock installer downloads and activate access across devices.
                     </p>
                   </div>
@@ -249,12 +249,8 @@ export default function MarketingPage() {
                 </div>
 
                 <div className="rounded-2xl border border-slate-700/65 bg-slate-900/55 p-4">
-                  <div className="flex justify-center">
-                    <div className="w-full max-w-[360px]">
-                      <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
-                    </div>
-                  </div>
-                  <p className="mt-3 text-center text-xs text-slate-400">
+                  <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
+                  <p className="mt-3 whitespace-normal break-words text-center text-xs text-slate-400">
                     After checkout, return to the Install page to download.
                   </p>
                 </div>
