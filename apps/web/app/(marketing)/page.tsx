@@ -7,16 +7,46 @@ import { LiveTickerStrip } from "@/components/market/live-ticker-strip";
 import { ProductTour } from "@/components/marketing/product-tour";
 import { MarketPulsePanel } from "@/components/market/market-pulse";
 import { InstallStepperPreview } from "@/components/marketing/install-stepper-preview";
+import { PaypalCheckoutCard } from "@/components/payment/paypal-checkout-card";
+import { LogoMark } from "@/components/wallet/logo-mark";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { usePaymentGate } from "@/lib/payment-gate";
 
 const featureStats = [
-  { label: "App install completion", value: "92%" },
-  { label: "Average first-session time", value: "11m" },
+  { label: "Install completion rate", value: "92%" },
+  { label: "Avg first-session duration", value: "11m" },
   { label: "User satisfaction score", value: "4.8/5" },
 ];
 
+const walletProviders = [
+  { name: "Exodus", logo: "/wallet-logos/exodus.png", fallback: "EX" },
+  { name: "Trust Wallet", logo: "/wallet-logos/trustwallet.png", fallback: "TW" },
+  { name: "Phantom", logo: "/wallet-logos/phantom.png", fallback: "PH" },
+  { name: "MetaMask", logo: "/wallet-logos/metamask.png", fallback: "MM" },
+  { name: "Coinbase", logo: "/wallet-logos/coinbase.png", fallback: "CB" },
+  { name: "OKX", logo: "/wallet-logos/okx.png", fallback: "OK" },
+];
+
+const networks = [
+  { name: "Bitcoin", logo: "/network-logos/bitcoin.svg", fallback: "BTC" },
+  { name: "Ethereum", logo: "/network-logos/ethereum.svg", fallback: "ETH" },
+  { name: "Solana", logo: "/network-logos/solana.svg", fallback: "SOL" },
+  { name: "BNB Chain", logo: "/network-logos/bnb-chain.svg", fallback: "BNB" },
+  { name: "Polygon", logo: "/network-logos/polygon.svg", fallback: "POL" },
+  { name: "Avalanche", logo: "/network-logos/avalanche.svg", fallback: "AVAX" },
+  { name: "TON", logo: "/network-logos/ton.svg", fallback: "TON" },
+  { name: "Arbitrum", logo: "/network-logos/arbitrum.svg", fallback: "ARB" },
+  { name: "Optimism", logo: "/network-logos/optimism.svg", fallback: "OP" },
+  { name: "Dogecoin", logo: "/network-logos/dogecoin.svg", fallback: "DOGE" },
+];
+
+const purchaseAmount = process.env.NEXT_PUBLIC_PAYPAL_PRICE_AMOUNT ?? "49.00";
+const purchaseCurrency = process.env.NEXT_PUBLIC_PAYPAL_PRICE_CURRENCY ?? "USD";
+
 export default function MarketingPage() {
+  const { isPaid } = usePaymentGate();
+
   return (
     <div className="relative overflow-x-hidden">
       <div className="pointer-events-none absolute inset-0 -z-10">
@@ -43,8 +73,8 @@ export default function MarketingPage() {
         <Link href="/" className="focus-ring rounded-lg px-2 py-1 text-sm font-semibold uppercase tracking-[0.24em] text-cyan-100">
           Cryptex Miner
         </Link>
-        <Link href="/install" className="focus-ring rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 hover:border-cyan-300/60">
-          Install
+        <Link href={isPaid ? "/install" : "/#secure-payment"} className="focus-ring rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 hover:border-cyan-300/60">
+          {isPaid ? "Install Miner" : "Pay & Unlock"}
         </Link>
       </header>
 
@@ -73,8 +103,8 @@ export default function MarketingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.14 }}
             >
-              Cryptex Miner pairs a high-fidelity mining engine with live Binance markets, clean wallet tracking,
-              and a frictionless install path across iOS, Android, macOS, and Windows.
+              Cryptex Miner combines calibrated mining controls, live Binance markets, and secure wallet tracking in a
+              clean cross-platform workflow.
             </motion.p>
             <motion.div
               className="mt-7 flex flex-wrap items-center gap-3"
@@ -82,9 +112,9 @@ export default function MarketingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <Link href="/install">
+              <Link href={isPaid ? "/install" : "/#secure-payment"}>
                 <Button size="lg" className="min-w-[12rem]">
-                  Install App
+                  {isPaid ? "Install Miner" : "Pay to Unlock Install"}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
@@ -102,11 +132,11 @@ export default function MarketingPage() {
             <ul className="mt-4 space-y-4">
               <li className="flex gap-3">
                 <ShieldCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
-                <span className="text-sm text-slate-200">Transparent mining controls with clear activity tracking.</span>
+                <span className="text-sm text-slate-200">Secure PayPal payment gating before installer access.</span>
               </li>
               <li className="flex gap-3">
                 <Smartphone className="mt-0.5 h-4 w-4 text-cyan-300" />
-                <span className="text-sm text-slate-200">Installable as a full-screen app with native-feel navigation.</span>
+                <span className="text-sm text-slate-200">Native-feel navigation across desktop and mobile installs.</span>
               </li>
               <li className="flex gap-3">
                 <Sparkles className="mt-0.5 h-4 w-4 text-cyan-300" />
@@ -121,6 +151,22 @@ export default function MarketingPage() {
                 </div>
               ))}
             </div>
+          </Card>
+        </section>
+
+        <section id="secure-payment" className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
+          <PaypalCheckoutCard amount={purchaseAmount} currency={purchaseCurrency} />
+          <Card className="rounded-2xl">
+            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">How It Works</p>
+            <ol className="mt-4 space-y-3 text-sm text-slate-200">
+              <li className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2">1. Pay securely with PayPal.</li>
+              <li className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2">2. Open install page and download your installer.</li>
+              <li className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2">3. Connect wallets with provider and network logos.</li>
+              <li className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2">4. Start mining from the core control panel.</li>
+            </ol>
+            <p className="mt-4 text-xs text-slate-400">
+              One-time access fee: {purchaseAmount} {purchaseCurrency}
+            </p>
           </Card>
         </section>
 
@@ -143,16 +189,46 @@ export default function MarketingPage() {
             <MarketPulsePanel />
           </div>
           <div>
-            <h2 className="mb-4 text-2xl font-semibold text-white">Install in 10 seconds</h2>
+            <h2 className="mb-4 text-2xl font-semibold text-white">Install Packages</h2>
             <InstallStepperPreview />
           </div>
         </section>
 
+        <section className="grid gap-4 lg:grid-cols-2">
+          <Card className="rounded-2xl">
+            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Supported Wallets</p>
+            <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-6">
+              {walletProviders.map((wallet) => (
+                <div key={wallet.name} className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-2 py-3 text-center">
+                  <div className="flex justify-center">
+                    <LogoMark src={wallet.logo} alt={`${wallet.name} logo`} fallback={wallet.fallback} size={24} />
+                  </div>
+                  <p className="mt-2 text-[11px] text-slate-300">{wallet.name}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="rounded-2xl">
+            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Supported Networks</p>
+            <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-5">
+              {networks.map((network) => (
+                <div key={network.name} className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-2 py-3 text-center">
+                  <div className="flex justify-center">
+                    <LogoMark src={network.logo} alt={`${network.name} logo`} fallback={network.fallback} size={24} />
+                  </div>
+                  <p className="mt-2 text-[11px] text-slate-300">{network.name}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </section>
+
         <section className="grid gap-4 sm:grid-cols-3">
           {[
-            { title: "Institutional UI", body: "Built for focus: no noisy clutter, no gimmick dashboards." },
-            { title: "Transparent Data", body: "Real market numbers only. Unavailable states are clearly flagged." },
-            { title: "Privacy First", body: "Watch-only address storage stays local to your device." },
+            { title: "Security Guarantee", body: "Wallet entries are watch-only and kept on-device. No custody, no private keys, no seed phrase handling." },
+            { title: "Operational Reliability", body: "Live pricing and market pulse updates use Binance public endpoints with stale-data fallback controls." },
+            { title: "Contact & Support", body: "Need help? Contact support@cryptexminer.com for payment, install, or wallet support." },
           ].map((item) => (
             <Card key={item.title} className="rounded-2xl">
               <h3 className="text-lg font-semibold text-white">{item.title}</h3>
@@ -169,5 +245,3 @@ export default function MarketingPage() {
     </div>
   );
 }
-
-

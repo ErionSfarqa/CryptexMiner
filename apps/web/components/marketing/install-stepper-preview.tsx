@@ -4,24 +4,24 @@ import { motion } from "framer-motion";
 
 const packages = [
   {
-    name: "Windows",
-    artifact: "Cryptex-Installer-Windows.exe",
-    note: "Signed desktop installer",
+    name: "Step 1",
+    artifact: "Secure PayPal Payment",
+    note: "Complete one-time checkout",
   },
   {
-    name: "macOS",
-    artifact: "Cryptex-Installer-macOS.dmg",
-    note: "Desktop installer package",
+    name: "Step 2",
+    artifact: "Unlock Installer Access",
+    note: "Payment token verified",
   },
   {
-    name: "Android",
-    artifact: "Native install prompt",
-    note: "Install from mobile browser",
+    name: "Step 3",
+    artifact: "Install Cryptex Miner",
+    note: "Desktop package or mobile install",
   },
   {
-    name: "iOS",
-    artifact: "Home Screen install",
-    note: "Safari add-to-home workflow",
+    name: "Step 4",
+    artifact: "Connect Wallet and Start",
+    note: "Provider + network guided setup",
   },
 ] as const;
 

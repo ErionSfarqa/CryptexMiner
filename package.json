@@ -11,6 +11,7 @@
     "build:web": "npm run build --workspace @cryptex/web",
     "start:web": "npm run start --workspace @cryptex/web",
     "lint:web": "npm run lint --workspace @cryptex/web",
+    "start:paypal-gateway": "node services/paypal-gateway/server.mjs",
     "dev:desktop": "npm run tauri dev --workspace @cryptex/desktop",
     "build:desktop": "npm run tauri build --workspace @cryptex/desktop"
   }

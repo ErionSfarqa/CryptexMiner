@@ -129,6 +129,30 @@ export function AddressModal({ isOpen, onClose, onSubmit, initial }: AddressModa
   const addressError = useMemo(() => validateAddressForNetwork(network, address), [network, address]);
   const shouldShowAddressError = Boolean(addressError) && (showAddressError || address.trim().length > 0);
   const canSubmit = address.trim().length > 0 && !addressError;
+  const networkPlaceholder: Record<WalletNetwork, string> = {
+    bitcoin: "bc1..., 1..., or 3...",
+    ethereum: "0x...",
+    solana: "Solana address",
+    "bnb-chain": "BNB Chain address",
+    polygon: "Polygon address",
+    avalanche: "Avalanche address",
+    ton: "TON address",
+    arbitrum: "Arbitrum address",
+    optimism: "Optimism address",
+    dogecoin: "Dogecoin address",
+  };
+  const networkFallback: Record<WalletNetwork, string> = {
+    bitcoin: "BTC",
+    ethereum: "ETH",
+    solana: "SOL",
+    "bnb-chain": "BNB",
+    polygon: "POL",
+    avalanche: "AVAX",
+    ton: "TON",
+    arbitrum: "ARB",
+    optimism: "OP",
+    dogecoin: "DOGE",
+  };
 
   return (
     <Modal
@@ -170,7 +194,7 @@ export function AddressModal({ isOpen, onClose, onSubmit, initial }: AddressModa
           value={network}
           onChange={setNetwork}
           options={walletNetworkOptions}
-          fallbackFor={(value) => (value === "bitcoin" ? "BTC" : "ETH")}
+          fallbackFor={(value) => networkFallback[value]}
         />
 
         <label className="block text-sm text-slate-200">
@@ -185,7 +209,7 @@ export function AddressModal({ isOpen, onClose, onSubmit, initial }: AddressModa
             className={`focus-ring mt-1 w-full rounded-xl border bg-slate-900/70 px-3 py-2 text-sm text-white ${
               shouldShowAddressError ? "border-rose-400/70" : "border-slate-600"
             }`}
-            placeholder={network === "bitcoin" ? "bc1..., 1..., or 3..." : "0x..."}
+            placeholder={networkPlaceholder[network]}
             required
           />
           {shouldShowAddressError ? <p className="mt-1 text-xs text-rose-300">{addressError}</p> : null}

@@ -25,6 +25,14 @@ export const walletProviderOptions: WalletProviderOption[] = [
 export const walletNetworkOptions: WalletNetworkOption[] = [
   { id: "bitcoin", label: "Bitcoin", logo: "/network-logos/bitcoin.svg" },
   { id: "ethereum", label: "Ethereum", logo: "/network-logos/ethereum.svg" },
+  { id: "solana", label: "Solana", logo: "/network-logos/solana.svg" },
+  { id: "bnb-chain", label: "BNB Chain", logo: "/network-logos/bnb-chain.svg" },
+  { id: "polygon", label: "Polygon", logo: "/network-logos/polygon.svg" },
+  { id: "avalanche", label: "Avalanche", logo: "/network-logos/avalanche.svg" },
+  { id: "ton", label: "TON", logo: "/network-logos/ton.svg" },
+  { id: "arbitrum", label: "Arbitrum", logo: "/network-logos/arbitrum.svg" },
+  { id: "optimism", label: "Optimism", logo: "/network-logos/optimism.svg" },
+  { id: "dogecoin", label: "Dogecoin", logo: "/network-logos/dogecoin.svg" },
 ];
 
 export function normalizeWalletProvider(provider: string): WalletProvider {
@@ -34,9 +42,15 @@ export function normalizeWalletProvider(provider: string): WalletProvider {
 export function normalizeWalletNetwork(network: string): WalletNetwork {
   const normalized = network.trim().toLowerCase();
 
-  if (normalized === "ethereum" || normalized === "eth") {
-    return "ethereum";
-  }
+  if (normalized === "ethereum" || normalized === "eth") return "ethereum";
+  if (normalized === "solana" || normalized === "sol") return "solana";
+  if (normalized === "bnb chain" || normalized === "bnb-chain" || normalized === "bnb") return "bnb-chain";
+  if (normalized === "polygon" || normalized === "matic") return "polygon";
+  if (normalized === "avalanche" || normalized === "avax") return "avalanche";
+  if (normalized === "ton" || normalized === "toncoin") return "ton";
+  if (normalized === "arbitrum" || normalized === "arb") return "arbitrum";
+  if (normalized === "optimism" || normalized === "op") return "optimism";
+  if (normalized === "dogecoin" || normalized === "doge") return "dogecoin";
 
   return "bitcoin";
 }
@@ -61,5 +75,13 @@ export function validateAddressForNetwork(network: WalletNetwork, address: strin
   }
 
   const isValidEth = /^0x[a-fA-F0-9]{40}$/.test(trimmed);
-  return isValidEth ? null : "Enter a valid Ethereum address (0x + 40 hex chars).";
+  if (network === "ethereum") {
+    return isValidEth ? null : "Enter a valid Ethereum address (0x + 40 hex chars).";
+  }
+
+  if (network === "solana") {
+    return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(trimmed) ? null : "Enter a valid Solana address.";
+  }
+
+  return trimmed.length >= 12 ? null : "Address looks too short for the selected network.";
 }

@@ -1,9 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import { Toast } from "@/components/ui/toast";
+import { buildPaymentGatewayBase, usePaymentGate } from "@/lib/payment-gate";
 
 type Platform = "ios" | "android" | "windows" | "macos";
 
@@ -73,6 +77,10 @@ export default function InstallPage() {
   const [deferredPrompt, setDeferredPrompt] = useState<DeferredPromptEvent | null>(null);
   const [showIosOverlay, setShowIosOverlay] = useState(false);
   const [androidMessage, setAndroidMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const { isHydrated, isPaid, paymentSession } = usePaymentGate();
+
+  const gatewayBase = useMemo(() => buildPaymentGatewayBase(), []);
 
   const userAgent = useSyncExternalStore(
     () => () => undefined,
@@ -95,26 +103,53 @@ export default function InstallPage() {
     };
   }, []);
 
+  const verifyQuery = useQuery({
+    queryKey: ["payment-verify", paymentSession?.token, gatewayBase],
+    enabled: Boolean(isHydrated && paymentSession?.token),
+    networkMode: "always",
+    retry: false,
+    staleTime: 60_000,
+    queryFn: async () => {
+      if (!paymentSession?.token) {
+        return false;
+      }
+
+      const response = await fetch(`${gatewayBase}/api/paypal/verify?token=${encodeURIComponent(paymentSession.token)}`, {
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        return false;
+      }
+
+      const payload = (await response.json()) as { valid: boolean };
+      return payload.valid;
+    },
+  });
+
+  const paymentVerified = Boolean(isPaid && verifyQuery.data);
+  const verifyingPayment = Boolean(isPaid && verifyQuery.isPending);
+  const canInstall = paymentVerified;
+
   const cards: Array<{
     id: Platform;
     title: string;
     subtitle: string;
     buttonLabel: string;
-    href?: string;
     logo: React.ReactNode;
   }> = [
     {
       id: "ios",
       title: "iOS",
       subtitle: "Install to Home Screen",
-      buttonLabel: "Install",
+      buttonLabel: "Install Miner",
       logo: <AppleLogo />,
     },
     {
       id: "android",
       title: "Android",
       subtitle: "Native install",
-      buttonLabel: "Install",
+      buttonLabel: "Install Miner",
       logo: <AndroidLogo />,
     },
     {
@@ -122,7 +157,6 @@ export default function InstallPage() {
       title: "Windows",
       subtitle: "Cryptex Installer",
       buttonLabel: "Download Installer",
-      href: "/downloads/Cryptex-Installer-Windows.exe",
       logo: <WindowsLogo />,
     },
     {
@@ -130,12 +164,17 @@ export default function InstallPage() {
       title: "macOS",
       subtitle: "Cryptex Installer",
       buttonLabel: "Download Installer",
-      href: "/downloads/Cryptex-Installer-macOS.dmg",
       logo: <MacLogo />,
     },
   ];
 
   const handleMobileInstall = async (platform: Platform) => {
+    if (!canInstall) {
+      setToast("Payment required before install");
+      setTimeout(() => setToast(null), 1800);
+      return;
+    }
+
     if (platform === "ios") {
       setShowIosOverlay(true);
       return;
@@ -153,8 +192,17 @@ export default function InstallPage() {
     }
   };
 
+  const windowsDownloadUrl = paymentSession?.token
+    ? `${gatewayBase}/api/paypal/download/windows?token=${encodeURIComponent(paymentSession.token)}`
+    : "";
+  const macDownloadUrl = paymentSession?.token
+    ? `${gatewayBase}/api/paypal/download/macos?token=${encodeURIComponent(paymentSession.token)}`
+    : "";
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center px-4 py-14 sm:px-6">
+      <Toast message={toast} />
+
       <div className="text-center">
         <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Cryptex Installer</p>
         <h1 className="mt-3 text-4xl font-semibold text-white">Download and install Cryptex Miner</h1>
@@ -163,9 +211,26 @@ export default function InstallPage() {
         </p>
       </div>
 
+      {!canInstall ? (
+        <div className="mx-auto mt-6 w-full max-w-3xl rounded-2xl border border-amber-400/40 bg-amber-500/10 px-4 py-4 text-center">
+          <p className="text-sm font-semibold text-amber-100">Payment required to unlock installer access.</p>
+          <p className="mt-1 text-xs text-amber-100/90">
+            {verifyingPayment ? "Verifying payment status..." : "Complete checkout on the landing page to continue."}
+          </p>
+          <Link
+            href="/#secure-payment"
+            className="focus-ring mt-3 inline-flex h-10 items-center justify-center rounded-xl border border-amber-300/60 px-4 text-sm font-semibold text-amber-100 hover:bg-amber-400/15"
+          >
+            Go to Secure Payment
+          </Link>
+        </div>
+      ) : null}
+
       <section className="mx-auto mt-8 grid w-full max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => {
           const isRecommended = card.id === recommended;
+          const isDesktop = card.id === "windows" || card.id === "macos";
+          const downloadHref = card.id === "windows" ? windowsDownloadUrl : card.id === "macos" ? macDownloadUrl : "";
 
           return (
             <Card
@@ -178,17 +243,22 @@ export default function InstallPage() {
               <h2 className="mt-3 text-lg font-semibold text-white">{card.title}</h2>
               <p className="mt-1 text-xs text-slate-300">{card.subtitle}</p>
 
-              {card.href ? (
-                <a
-                  href={card.href}
-                  download
-                  className="focus-ring mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[linear-gradient(130deg,#2ad2c9,#14b8a6)] px-4 text-sm font-semibold text-slate-950 shadow-[0_14px_32px_rgba(31,206,193,0.25)] transition hover:brightness-105"
-                >
-                  {card.buttonLabel}
-                </a>
+              {isDesktop ? (
+                canInstall ? (
+                  <a
+                    href={downloadHref}
+                    className="focus-ring mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[linear-gradient(130deg,#2ad2c9,#14b8a6)] px-4 text-sm font-semibold text-slate-950 shadow-[0_14px_32px_rgba(31,206,193,0.25)] transition hover:brightness-105"
+                  >
+                    {card.buttonLabel}
+                  </a>
+                ) : (
+                  <Button className="mt-5 w-full" disabled>
+                    Payment required
+                  </Button>
+                )
               ) : (
-                <Button className="mt-5 w-full" onClick={() => void handleMobileInstall(card.id)}>
-                  {card.buttonLabel}
+                <Button className="mt-5 w-full" onClick={() => void handleMobileInstall(card.id)} disabled={!canInstall}>
+                  {canInstall ? card.buttonLabel : "Payment required"}
                 </Button>
               )}
             </Card>

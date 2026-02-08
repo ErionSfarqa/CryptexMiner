@@ -158,6 +158,10 @@ export default function WalletPage() {
                 const provider = providerById(normalizeWalletProvider(entry.provider));
                 const network = networkById(normalizeWalletNetwork(entry.network));
                 const label = entry.label.trim().length > 0 ? entry.label : `${provider.label} Wallet`;
+                const networkFallback = network.label
+                  .replace(/[^A-Za-z]/g, "")
+                  .slice(0, 4)
+                  .toUpperCase();
 
                 return (
                   <div key={entry.id} className="rounded-xl border border-slate-700/65 bg-slate-900/55 p-3">
@@ -178,7 +182,7 @@ export default function WalletPage() {
                             <LogoMark
                               src={network.logo}
                               alt={`${network.label} logo`}
-                              fallback={network.id === "bitcoin" ? "BTC" : "ETH"}
+                              fallback={networkFallback}
                               size={16}
                             />
                             {network.label}

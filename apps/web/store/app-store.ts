@@ -5,7 +5,17 @@ import { persist } from "zustand/middleware";
 import { SUPPORTED_ASSETS, type FiatCurrency, type MineableCoin, type SupportedCoin } from "@/lib/binance";
 
 export type WalletProvider = "exodus" | "metamask" | "phantom" | "trustwallet" | "coinbase" | "okx" | "other";
-export type WalletNetwork = "bitcoin" | "ethereum";
+export type WalletNetwork =
+  | "bitcoin"
+  | "ethereum"
+  | "solana"
+  | "bnb-chain"
+  | "polygon"
+  | "avalanche"
+  | "ton"
+  | "arbitrum"
+  | "optimism"
+  | "dogecoin";
 
 export interface MiningActivity {
   id: string;
