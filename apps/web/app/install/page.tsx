@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -78,6 +78,8 @@ export default function InstallPage() {
   const [showIosOverlay, setShowIosOverlay] = useState(false);
   const [androidMessage, setAndroidMessage] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const previousCanInstallRef = useRef(false);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { isHydrated, isPaid, paymentSession } = usePaymentGate();
 
   const gatewayBase = useMemo(() => buildPaymentGatewayBase(), []);
@@ -130,6 +132,46 @@ export default function InstallPage() {
   const paymentVerified = Boolean(isPaid && verifyQuery.data);
   const verifyingPayment = Boolean(isPaid && verifyQuery.isPending);
   const canInstall = paymentVerified;
+  const controlsLocked = !canInstall;
+
+  const showToast = useCallback((message: string) => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+
+    setToast(message);
+    toastTimerRef.current = setTimeout(() => setToast(null), 1800);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
+    const shouldShowUnlockToast = !previousCanInstallRef.current && canInstall;
+
+    previousCanInstallRef.current = canInstall;
+
+    if (!shouldShowUnlockToast) {
+      return;
+    }
+
+    const timerId = window.setTimeout(() => {
+      showToast("Installation unlocked");
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timerId);
+    };
+  }, [canInstall, isHydrated, showToast]);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
 
   const cards: Array<{
     id: Platform;
@@ -170,8 +212,7 @@ export default function InstallPage() {
 
   const handleMobileInstall = async (platform: Platform) => {
     if (!canInstall) {
-      setToast("Payment required before install");
-      setTimeout(() => setToast(null), 1800);
+      showToast("Unlock after payment");
       return;
     }
 
@@ -211,20 +252,35 @@ export default function InstallPage() {
         </p>
       </div>
 
-      {!canInstall ? (
-        <div className="mx-auto mt-6 w-full max-w-3xl rounded-2xl border border-amber-400/40 bg-amber-500/10 px-4 py-4 text-center">
-          <p className="text-sm font-semibold text-amber-100">Payment required to unlock installer access.</p>
-          <p className="mt-1 text-xs text-amber-100/90">
-            {verifyingPayment ? "Verifying payment status..." : "Complete checkout on the landing page to continue."}
-          </p>
-          <Link
-            href="/#secure-payment"
-            className="focus-ring mt-3 inline-flex h-10 items-center justify-center rounded-xl border border-amber-300/60 px-4 text-sm font-semibold text-amber-100 hover:bg-amber-400/15"
-          >
-            Go to Secure Payment
-          </Link>
-        </div>
-      ) : null}
+      <div
+        className={`mx-auto mt-6 w-full max-w-3xl rounded-2xl px-4 py-4 text-center ${
+          controlsLocked
+            ? "border border-amber-400/40 bg-amber-500/10"
+            : "border border-emerald-400/35 bg-emerald-500/10"
+        }`}
+      >
+        {controlsLocked ? (
+          <>
+            <p className="text-sm font-semibold text-amber-100">
+              To activate mining, complete your secure PayPal payment.
+            </p>
+            <p className="mt-1 text-xs text-amber-100/90">
+              {verifyingPayment ? "Verifying payment status..." : "Buttons are visible below and unlock instantly after confirmation."}
+            </p>
+            <Link
+              href="/#secure-payment"
+              className="focus-ring mt-3 inline-flex h-10 items-center justify-center rounded-xl border border-amber-300/60 px-4 text-sm font-semibold text-amber-100 hover:bg-amber-400/15"
+            >
+              Complete Secure Payment
+            </Link>
+          </>
+        ) : (
+          <>
+            <p className="text-sm font-semibold text-emerald-100">Payment confirmed. Installers are unlocked.</p>
+            <p className="mt-1 text-xs text-emerald-100/85">Choose your platform and continue installation.</p>
+          </>
+        )}
+      </div>
 
       <section className="mx-auto mt-8 grid w-full max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => {
@@ -235,10 +291,14 @@ export default function InstallPage() {
           return (
             <Card
               key={card.id}
-              className={`flex flex-col items-center rounded-2xl p-5 text-center ${
+              className={`relative flex flex-col items-center rounded-2xl p-5 text-center ${
                 isRecommended ? "border-cyan-300/70 bg-cyan-300/10" : "border-slate-700/65"
-              }`}
+              } ${controlsLocked ? "bg-slate-950/40" : ""}`}
             >
+              {controlsLocked ? (
+                <div className="pointer-events-none absolute inset-0 rounded-2xl border border-slate-700/45 bg-slate-950/35 backdrop-blur-[1px]" />
+              ) : null}
+
               <div className="rounded-xl border border-slate-600/70 bg-slate-900/65 p-3">{card.logo}</div>
               <h2 className="mt-3 text-lg font-semibold text-white">{card.title}</h2>
               <p className="mt-1 text-xs text-slate-300">{card.subtitle}</p>
@@ -252,14 +312,18 @@ export default function InstallPage() {
                     {card.buttonLabel}
                   </a>
                 ) : (
-                  <Button className="mt-5 w-full" disabled>
-                    Payment required
-                  </Button>
+                  <div title="Unlock after payment" className="mt-5 w-full">
+                    <Button className="w-full" disabled>
+                      {card.buttonLabel}
+                    </Button>
+                  </div>
                 )
               ) : (
-                <Button className="mt-5 w-full" onClick={() => void handleMobileInstall(card.id)} disabled={!canInstall}>
-                  {canInstall ? card.buttonLabel : "Payment required"}
-                </Button>
+                <div title={!canInstall ? "Unlock after payment" : undefined} className="mt-5 w-full">
+                  <Button className="w-full" onClick={() => void handleMobileInstall(card.id)} disabled={!canInstall}>
+                    {card.buttonLabel}
+                  </Button>
+                </div>
               )}
             </Card>
           );

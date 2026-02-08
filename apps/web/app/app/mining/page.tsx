@@ -158,7 +158,7 @@ export default function MiningPage() {
 
     const timerId = window.setTimeout(() => {
       stopMining("Connection lost. Mining paused.");
-      showToast("Offline — mining paused");
+      showToast("Offline - mining paused");
     }, 0);
 
     return () => window.clearTimeout(timerId);
@@ -237,7 +237,7 @@ export default function MiningPage() {
 
   const handleStart = () => {
     if (!isOnline) {
-      showToast("Offline — mining paused");
+      showToast("Offline - mining paused");
       pushEvent("Connect to the internet to resume.");
       return;
     }

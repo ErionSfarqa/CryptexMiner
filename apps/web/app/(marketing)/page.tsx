@@ -73,8 +73,8 @@ export default function MarketingPage() {
         <Link href="/" className="focus-ring rounded-lg px-2 py-1 text-sm font-semibold uppercase tracking-[0.24em] text-cyan-100">
           Cryptex Miner
         </Link>
-        <Link href={isPaid ? "/install" : "/#secure-payment"} className="focus-ring rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 hover:border-cyan-300/60">
-          {isPaid ? "Install Miner" : "Pay & Unlock"}
+        <Link href="/install" className="focus-ring rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 hover:border-cyan-300/60">
+          {isPaid ? "Install Miner" : "Open Install Page"}
         </Link>
       </header>
 
@@ -112,12 +112,19 @@ export default function MarketingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <Link href={isPaid ? "/install" : "/#secure-payment"}>
+              <Link href="/install">
                 <Button size="lg" className="min-w-[12rem]">
-                  {isPaid ? "Install Miner" : "Pay to Unlock Install"}
+                  {isPaid ? "Install Miner" : "Open Install Page"}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
+              {!isPaid ? (
+                <Link href="/#secure-payment">
+                  <Button variant="secondary" size="lg" className="min-w-[12rem]">
+                    Secure Payment
+                  </Button>
+                </Link>
+              ) : null}
               <Link href="/app/markets">
                 <Button variant="secondary" size="lg" className="min-w-[12rem]">
                   View Live Markets
@@ -194,7 +201,9 @@ export default function MarketingPage() {
           </div>
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-2">
+        <section>
+          <h2 className="mb-4 text-2xl font-semibold text-white">Supported Wallets & Networks</h2>
+          <div className="grid gap-4 lg:grid-cols-2">
           <Card className="rounded-2xl">
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Supported Wallets</p>
             <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-6">
@@ -222,19 +231,64 @@ export default function MarketingPage() {
               ))}
             </div>
           </Card>
+          </div>
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-3">
+        <section>
+          <h2 className="mb-4 text-2xl font-semibold text-white">Trusted & Secure</h2>
+          <div className="grid gap-4 sm:grid-cols-3">
           {[
             { title: "Security Guarantee", body: "Wallet entries are watch-only and kept on-device. No custody, no private keys, no seed phrase handling." },
             { title: "Operational Reliability", body: "Live pricing and market pulse updates use Binance public endpoints with stale-data fallback controls." },
-            { title: "Contact & Support", body: "Need help? Contact support@cryptexminer.com for payment, install, or wallet support." },
+            { title: "Buyer Confidence", body: "PayPal checkout is encrypted with one-time purchase verification before installer downloads." },
           ].map((item) => (
             <Card key={item.title} className="rounded-2xl">
               <h3 className="text-lg font-semibold text-white">{item.title}</h3>
               <p className="mt-2 text-sm leading-6 text-slate-300">{item.body}</p>
             </Card>
           ))}
+          </div>
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
+          <Card className="rounded-2xl">
+            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">FAQs</p>
+            <div className="mt-4 space-y-3">
+              {[
+                {
+                  q: "What happens after I pay?",
+                  a: "Your payment is verified instantly and installer downloads unlock on the install page without reloading.",
+                },
+                {
+                  q: "Which wallets are supported?",
+                  a: "Connect Exodus, Trust Wallet, Phantom, MetaMask, Coinbase, OKX, and custom providers across major networks.",
+                },
+                {
+                  q: "Is wallet access custodial?",
+                  a: "No. Wallet entries are watch-only and remain local to your device.",
+                },
+              ].map((item) => (
+                <div key={item.q} className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-4 py-3">
+                  <p className="text-sm font-semibold text-white">{item.q}</p>
+                  <p className="mt-1 text-sm text-slate-300">{item.a}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="rounded-2xl">
+            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Contact</p>
+            <h3 className="mt-3 text-xl font-semibold text-white">Support Team</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-300">
+              For payment, installation, or wallet support, contact the Cryptex team.
+            </p>
+            <a
+              href="mailto:support@cryptexminer.com"
+              className="focus-ring mt-4 inline-flex h-10 items-center justify-center rounded-xl border border-cyan-300/55 px-4 text-sm font-semibold text-cyan-100 hover:bg-cyan-400/10"
+            >
+              support@cryptexminer.com
+            </a>
+          </Card>
         </section>
       </main>
 
