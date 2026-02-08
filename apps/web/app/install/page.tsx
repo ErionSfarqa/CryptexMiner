@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { PayPalHostedButton } from "@/components/paypal/PayPalHostedButton";
 import { Button } from "@/components/ui/button";
@@ -64,20 +63,6 @@ function MacLogo() {
   );
 }
 
-function getGatewayTokenFromSession() {
-  try {
-    const raw = window.sessionStorage.getItem("cryptex:payment:session");
-    if (!raw) {
-      return "";
-    }
-
-    const parsed = JSON.parse(raw) as { token?: string };
-    return typeof parsed.token === "string" ? parsed.token : "";
-  } catch {
-    return "";
-  }
-}
-
 export default function InstallPage() {
   const [entitlement, setEntitlement] = useState<EntitlementState>("loading");
   const [deferredPrompt, setDeferredPrompt] = useState<DeferredPromptEvent | null>(null);
@@ -86,9 +71,8 @@ export default function InstallPage() {
   const [androidMessage, setAndroidMessage] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [pendingPlatform, setPendingPlatform] = useState<Platform | null>(null);
-  const [orderIdInput, setOrderIdInput] = useState("");
-  const [claimError, setClaimError] = useState<string | null>(null);
-  const [isClaiming, setIsClaiming] = useState(false);
+  const [paywallMessage, setPaywallMessage] = useState<string | null>(null);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const userAgent = useSyncExternalStore(
@@ -161,6 +145,7 @@ export default function InstallPage() {
       const hasEntitlement = canInstall || (await refreshEntitlement());
       if (!hasEntitlement) {
         setPendingPlatform(platform);
+        setPaywallMessage(null);
         setShowPaywallModal(true);
         return;
       }
@@ -170,61 +155,31 @@ export default function InstallPage() {
     [canInstall, refreshEntitlement, startInstallation],
   );
 
-  const claimEntitlement = useCallback(async () => {
-    if (isClaiming) {
+  const handleRefreshStatus = useCallback(async () => {
+    if (isCheckingStatus) {
       return;
     }
 
-    setIsClaiming(true);
-    setClaimError(null);
-
-    const gatewayToken = getGatewayTokenFromSession();
-    const orderId = orderIdInput.trim();
-
-    if (!orderId && !gatewayToken) {
-      setIsClaiming(false);
-      setClaimError(
-        "Enter a PayPal order ID from your return URL/receipt, or complete payment from a configured success return.",
-      );
-      return;
-    }
-
-    const response = await fetch("/api/entitlement", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        orderId,
-        gatewayToken,
-      }),
-    });
-
-    setIsClaiming(false);
-
-    if (!response.ok) {
-      const payload = (await response.json().catch(() => ({ error: "Payment verification failed." }))) as {
-        error?: string;
-      };
-      setClaimError(payload.error ?? "Payment verification failed.");
-      return;
-    }
+    setIsCheckingStatus(true);
+    setPaywallMessage(null);
 
     const unlocked = await refreshEntitlement();
+    setIsCheckingStatus(false);
+
     if (!unlocked) {
-      setClaimError("Payment was submitted, but entitlement could not be confirmed yet. Please try again in a moment.");
+      setPaywallMessage("Payment not confirmed yet. If you completed checkout, wait a moment and try again.");
       return;
     }
 
     setShowPaywallModal(false);
-    showToast("Payment verified - installation unlocked");
+    showToast("Installation unlocked");
 
     if (pendingPlatform) {
       const platform = pendingPlatform;
       setPendingPlatform(null);
       await startInstallation(platform);
     }
-  }, [isClaiming, orderIdInput, pendingPlatform, refreshEntitlement, showToast, startInstallation]);
+  }, [isCheckingStatus, pendingPlatform, refreshEntitlement, showToast, startInstallation]);
 
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {
@@ -342,49 +297,49 @@ export default function InstallPage() {
         isOpen={showPaywallModal}
         onClose={() => {
           setShowPaywallModal(false);
-          setClaimError(null);
+          setPaywallMessage(null);
         }}
         title="Unlock access"
         description="Complete payment with PayPal to unlock installation."
       >
         <div className="space-y-4">
           <Card className="rounded-xl border-slate-700/65 bg-slate-900/55 p-4">
-            <p className="text-sm text-slate-200">Secure checkout via PayPal Hosted Buttons.</p>
-            <p className="mt-1 text-xs text-slate-400">
-              If your PayPal setup returns to <code>/payment/success</code>, entitlement is verified automatically.
+            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Secure checkout</p>
+            <h3 className="mt-2 text-lg font-semibold text-white">Unlock access with PayPal</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-300">
+              Complete checkout to unlock installation. Once payment is confirmed, return here and refresh your status.
             </p>
-            <div className="mt-3 flex justify-center">
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
+                Encrypted checkout
+              </span>
+              <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
+                EUR payment
+              </span>
+              <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
+                Instant unlock on confirmation
+              </span>
+            </div>
+
+            <div className="mt-4 flex justify-center">
               <div className="w-full max-w-[340px]">
-                <PayPalHostedButton
-                  hostedButtonId={PAYPAL_HOSTED_BUTTON_ID}
-                  containerId={PAYPAL_CONTAINER_ID}
-                />
+                <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
               </div>
             </div>
           </Card>
 
-          <label className="block text-sm text-slate-200">
-            PayPal Order ID (if not auto-redirected)
-            <input
-              value={orderIdInput}
-              onChange={(event) => setOrderIdInput(event.target.value)}
-              className="focus-ring mt-1 h-11 w-full rounded-xl border border-slate-600 bg-slate-900/70 px-3 text-sm text-white"
-              placeholder="e.g. 3XL12345ABCDE6789"
-            />
-          </label>
-
-          {claimError ? (
-            <p className="rounded-xl border border-rose-400/35 bg-rose-500/10 px-3 py-2 text-xs text-rose-100">
-              {claimError}
+          {paywallMessage ? (
+            <p className="rounded-xl border border-amber-400/35 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+              {paywallMessage}
             </p>
           ) : null}
 
           <div className="flex flex-wrap justify-end gap-2">
-            <Link href="/payment/success">
-              <Button variant="secondary">Open Payment Success Page</Button>
-            </Link>
-            <Button onClick={() => void claimEntitlement()} disabled={isClaiming}>
-              {isClaiming ? "Verifying..." : "Verify Payment"}
+            <Button variant="secondary" onClick={() => setShowPaywallModal(false)}>
+              Close
+            </Button>
+            <Button onClick={() => void handleRefreshStatus()} disabled={isCheckingStatus}>
+              {isCheckingStatus ? "Checking..." : "Refresh status"}
             </Button>
           </div>
         </div>

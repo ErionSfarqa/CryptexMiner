@@ -162,17 +162,19 @@ export default function MarketingPage() {
             transition={{ duration: 0.3 }}
           >
             <motion.div
-              className="group overflow-hidden rounded-2xl border border-slate-700/65 bg-slate-900/55 p-2"
+              className="group overflow-hidden rounded-2xl border border-slate-700/65 bg-slate-900/55 p-3"
               whileHover={{ y: -2 }}
               transition={{ duration: 0.2 }}
             >
-              <Image
-                src="/secure-pay/secure-pay.png"
-                alt="Secure checkout via PayPal"
-                width={1200}
-                height={800}
-                className="h-full w-full rounded-xl object-cover transition duration-300 group-hover:scale-[1.01]"
-              />
+              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-950/20">
+                <Image
+                  src="/secure-pay/secure-pay.png"
+                  alt="Secure checkout via PayPal"
+                  fill
+                  sizes="(min-width: 1024px) 520px, 100vw"
+                  className="object-contain transition duration-300 group-hover:scale-[1.01]"
+                />
+              </div>
             </motion.div>
 
             <motion.div
@@ -225,8 +227,8 @@ export default function MarketingPage() {
           </motion.article>
 
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true, amount: 0.25 }}
             transition={{ duration: 0.28 }}
           >
@@ -317,7 +319,7 @@ export default function MarketingPage() {
           </div>
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
+        <section>
           <Card className="rounded-2xl">
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">FAQs</p>
             <div className="mt-4 space-y-3">
@@ -341,20 +343,6 @@ export default function MarketingPage() {
                 </div>
               ))}
             </div>
-          </Card>
-
-          <Card className="rounded-2xl">
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Contact</p>
-            <h3 className="mt-3 text-xl font-semibold text-white">Support Team</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-300">
-              For payment, installation, or wallet support, contact the Cryptex team.
-            </p>
-            <a
-              href="mailto:support@cryptexminer.com"
-              className="focus-ring mt-4 inline-flex h-10 items-center justify-center rounded-xl border border-cyan-300/55 px-4 text-sm font-semibold text-cyan-100 hover:bg-cyan-400/10"
-            >
-              support@cryptexminer.com
-            </a>
           </Card>
         </section>
       </main>

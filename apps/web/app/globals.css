@@ -161,4 +161,14 @@ textarea {
   margin-right: auto !important;
 }
 
+.paypal-hosted-root,
+.paypal-hosted-root * {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  white-space: normal !important;
+  letter-spacing: normal !important;
+}
+
 
