@@ -11,38 +11,6 @@ import {
   type PaymentSession,
 } from "@/lib/payment-gate";
 
-declare global {
-  interface Window {
-    paypal?: {
-      Buttons?: (config: {
-        createOrder: () => Promise<string>;
-        onApprove: (data: { orderID: string }) => Promise<void>;
-        onError: (error: unknown) => void;
-        onCancel?: () => void;
-        style?: {
-          layout?: "vertical" | "horizontal";
-          color?: "gold" | "blue" | "silver" | "white" | "black";
-          shape?: "rect" | "pill";
-          label?: "paypal" | "checkout" | "pay" | "buynow" | "installment";
-          tagline?: boolean;
-          height?: number;
-        };
-      }) => {
-        render: (target: HTMLElement) => Promise<void>;
-        close?: () => void;
-      };
-      HostedButtons?: (config: { hostedButtonId: string }) => {
-        render: (selector: string) => Promise<void> | void;
-      };
-    };
-  }
-}
-
-interface PayPalButtonsInstance {
-  render: (target: HTMLElement) => Promise<void>;
-  close?: () => void;
-}
-
 interface PaypalCheckoutCardProps {
   amount: string;
   currency: string;

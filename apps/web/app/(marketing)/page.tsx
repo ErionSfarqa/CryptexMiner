@@ -3,11 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, ShieldCheck, Smartphone, Sparkles } from "lucide-react";
+import { ArrowRight, BadgeCheck, Lock, ShieldCheck, Smartphone, Sparkles } from "lucide-react";
 import { LiveTickerStrip } from "@/components/market/live-ticker-strip";
 import { ProductTour } from "@/components/marketing/product-tour";
 import { MarketPulsePanel } from "@/components/market/market-pulse";
 import { InstallStepperPreview } from "@/components/marketing/install-stepper-preview";
+import { PayPalHostedButton } from "@/components/paypal/PayPalHostedButton";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { usePaymentGate } from "@/lib/payment-gate";
@@ -17,6 +18,36 @@ const featureStats = [
   { label: "Avg first-session duration", value: "11m" },
   { label: "User satisfaction score", value: "4.8/5" },
 ];
+
+const PAYPAL_HOSTED_BUTTON_ID = "GVDXTBZQFAVD4";
+const PAYPAL_CONTAINER_ID = "paypal-container-GVDXTBZQFAVD4";
+
+const securePaymentSections = [
+  {
+    title: "Secure Checkout",
+    body: "Pay in EUR with PayPal hosted checkout in a protected flow designed for fast completion.",
+    bullets: ["Encrypted transfer", "Hosted by PayPal", "Transparent payment step"],
+    badges: ["Secure Checkout", "EUR Pricing"],
+    visual: "/secure-pay/pay-1.png",
+    visualAlt: "Secure checkout illustration",
+  },
+  {
+    title: "Protected Payments",
+    body: "Every purchase route uses trusted payment infrastructure so checkout remains clear and reliable.",
+    bullets: ["PayPal buyer protection", "No hidden redirects", "Clean confirmation flow"],
+    badges: ["Buyer Protection", "Verified Flow"],
+    visual: "/secure-pay/pay-2.png",
+    visualAlt: "Protected payment illustration",
+  },
+  {
+    title: "Instant Access",
+    body: "After checkout, activation instructions are shown immediately in-app so users can continue without friction.",
+    bullets: ["In-app activation state", "No hard page refresh", "Works with client navigation"],
+    badges: ["Fast Activation", "Production Ready"],
+    visual: "/secure-pay/pay-3.png",
+    visualAlt: "Instant access illustration",
+  },
+] as const;
 
 export default function MarketingPage() {
   const { isPaid } = usePaymentGate();
@@ -135,39 +166,112 @@ export default function MarketingPage() {
           </Card>
         </section>
 
-        <section id="secure-payment" className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
-          <Card className="rounded-2xl border-cyan-400/35 bg-[linear-gradient(150deg,rgba(13,27,44,0.9),rgba(11,21,36,0.82))]">
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Secure PayPal Payment</p>
-            <h2 className="mt-2 text-2xl font-semibold text-white">One-time purchase unlocks installation</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              Installation is unlocked on the install page after secure PayPal checkout. Payment uses hosted PayPal
-              infrastructure with encrypted transfer and buyer protection.
+        <section id="secure-payment" className="space-y-5">
+          <motion.div
+            className="max-w-2xl"
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.28 }}
+          >
+            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Secure Payment</p>
+            <h2 className="mt-2 text-3xl font-semibold text-white">Pay securely. Activate instantly.</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-300">
+              Trusted checkout experience with professional payment messaging and a direct activation flow.
             </p>
-            <div className="mt-5 flex flex-wrap gap-2 text-xs">
-              <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-cyan-100">
-                TLS Encrypted
-              </span>
-              <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-cyan-100">
-                Buyer Protection
-              </span>
-              <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-cyan-100">
-                One-Time Fee
-              </span>
-            </div>
-            <Link href="/install" className="mt-5 inline-flex">
-              <Button>{isPaid ? "Install Miner" : "Open Install & Pay"}</Button>
-            </Link>
-          </Card>
-          <Card className="rounded-2xl">
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">How It Works</p>
-            <ol className="mt-4 space-y-3 text-sm text-slate-200">
-              <li className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2">1. Pay securely with PayPal.</li>
-              <li className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2">2. Open install page and download your installer.</li>
-              <li className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2">3. Connect wallets with provider and network logos.</li>
-              <li className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2">4. Start mining from the core control panel.</li>
-            </ol>
-            <p className="mt-4 text-xs text-slate-400">One-time access fee shown during PayPal checkout.</p>
-          </Card>
+          </motion.div>
+
+          <div className="space-y-4">
+            {securePaymentSections.map((section, index) => (
+              <motion.article
+                key={section.title}
+                className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] lg:items-center"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.28 }}
+                transition={{ duration: 0.3, delay: index * 0.06 }}
+              >
+                <motion.div
+                  className="rounded-2xl border border-slate-700/65 bg-slate-900/55 p-5"
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">{section.title}</p>
+                  <h3 className="mt-2 text-2xl font-semibold text-white">{section.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">{section.body}</p>
+                  <ul className="mt-4 space-y-2">
+                    {section.bullets.map((bullet) => (
+                      <li key={bullet} className="inline-flex items-center gap-2 text-sm text-slate-200">
+                        <BadgeCheck className="h-4 w-4 text-cyan-300" />
+                        {bullet}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {section.badges.map((badge) => (
+                      <span
+                        key={badge}
+                        className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100"
+                      >
+                        {badge}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  className="group overflow-hidden rounded-2xl border border-slate-700/65 bg-slate-900/55 p-2"
+                  whileHover={{ y: -2 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Image
+                    src={section.visual}
+                    alt={section.visualAlt}
+                    width={1200}
+                    height={800}
+                    className="h-full w-full rounded-xl object-cover transition duration-300 group-hover:scale-[1.01]"
+                  />
+                </motion.div>
+              </motion.article>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.28 }}
+          >
+            <Card className="rounded-2xl border-cyan-400/35 bg-[linear-gradient(150deg,rgba(13,27,44,0.9),rgba(11,21,36,0.82))]">
+              <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-start">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Unlock Access</p>
+                  <h3 className="mt-2 text-2xl font-semibold text-white">Unlock Access</h3>
+                  <p className="mt-2 text-sm text-slate-300">Pay with PayPal (EUR).</p>
+                  <ul className="mt-4 space-y-2">
+                    <li className="inline-flex items-center gap-2 text-sm text-slate-200">
+                      <ShieldCheck className="h-4 w-4 text-cyan-300" />
+                      PayPal secure checkout
+                    </li>
+                    <li className="inline-flex items-center gap-2 text-sm text-slate-200">
+                      <Lock className="h-4 w-4 text-cyan-300" />
+                      No card details stored on our servers
+                    </li>
+                    <li className="inline-flex items-center gap-2 text-sm text-slate-200">
+                      <BadgeCheck className="h-4 w-4 text-cyan-300" />
+                      Activation instructions shown after payment
+                    </li>
+                  </ul>
+                </div>
+                <div className="w-full max-w-md rounded-xl border border-slate-700/65 bg-slate-900/55 p-4">
+                  <PayPalHostedButton
+                    hostedButtonId={PAYPAL_HOSTED_BUTTON_ID}
+                    containerId={PAYPAL_CONTAINER_ID}
+                  />
+                </div>
+              </div>
+            </Card>
+          </motion.div>
         </section>
 
         <section>
@@ -191,28 +295,6 @@ export default function MarketingPage() {
           <div>
             <h2 className="mb-4 text-2xl font-semibold text-white">Install Packages</h2>
             <InstallStepperPreview />
-          </div>
-        </section>
-
-        <section>
-          <div className="grid gap-4 rounded-2xl border border-slate-700/65 bg-[linear-gradient(130deg,rgba(17,33,56,0.72),rgba(10,22,38,0.84))] p-5 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-            <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Pay Safely With PayPal</p>
-              <h2 className="text-2xl font-semibold text-white">Pay Safely With PayPal</h2>
-              <p className="max-w-2xl text-sm leading-6 text-slate-300">
-                Your one-time payment is securely handled by PayPal. No account needed. No wallet data stored. Fully
-                encrypted and trusted by millions worldwide.
-              </p>
-            </div>
-            <div className="justify-self-end">
-              <Image
-                src="/images/paypal-trust-badge.png"
-                alt="Secure PayPal Checkout"
-                width={720}
-                height={420}
-                className="w-full max-w-[360px] rounded-2xl border border-slate-700/70 bg-slate-900/70 object-cover p-2"
-              />
-            </div>
           </div>
         </section>
 

@@ -395,7 +395,7 @@ export default function InstallPage() {
               onClick={async () => {
                 confirmClientPayment();
                 setShowPaywallModal(false);
-                showToast("Payment confirmed — you can now install");
+                showToast("Payment confirmed - you can now install");
 
                 if (pendingPlatform) {
                   const targetPlatform = pendingPlatform;
