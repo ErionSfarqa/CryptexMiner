@@ -13,9 +13,14 @@ interface LogoMarkProps {
 }
 
 export function LogoMark({ src, alt, fallback, size = 20, className }: LogoMarkProps) {
-  const [failed, setFailed] = useState(false);
+  const genericFallbackSrc = "/wallet-logos/generic.png";
+  const [erroredSources, setErroredSources] = useState<Record<string, true>>({});
+  const [genericFailed, setGenericFailed] = useState(false);
+  const source = src?.trim() ?? "";
+  const sourceErrored = source.length > 0 ? Boolean(erroredSources[source]) : false;
+  const currentSrc = sourceErrored ? genericFallbackSrc : source;
 
-  if (!src || failed) {
+  if (!currentSrc || (sourceErrored && genericFailed)) {
     return (
       <span
         className={cn(
@@ -32,12 +37,22 @@ export function LogoMark({ src, alt, fallback, size = 20, className }: LogoMarkP
 
   return (
     <Image
-      src={src}
+      src={currentSrc}
       alt={alt}
       width={size}
       height={size}
       className={cn("rounded-md", className)}
-      onError={() => setFailed(true)}
+      onError={() => {
+        if (currentSrc !== genericFallbackSrc) {
+          setErroredSources((previous) => ({
+            ...previous,
+            [source]: true,
+          }));
+          return;
+        }
+
+        setGenericFailed(true);
+      }}
     />
   );
 }

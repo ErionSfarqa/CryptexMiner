@@ -12,14 +12,25 @@ export interface WalletNetworkOption {
   logo: string;
 }
 
+const GENERIC_WALLET_LOGO = "/wallet-logos/generic.png";
+
+export function getWalletLogo(name: string) {
+  try {
+    const normalized = name.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+    return normalized.length > 0 ? `/wallet-logos/${normalized}.png` : GENERIC_WALLET_LOGO;
+  } catch {
+    return GENERIC_WALLET_LOGO;
+  }
+}
+
 export const walletProviderOptions: WalletProviderOption[] = [
-  { id: "exodus", label: "Exodus", logo: "/wallet-logos/exodus.png" },
-  { id: "trustwallet", label: "Trust Wallet", logo: "/wallet-logos/trustwallet.png" },
-  { id: "phantom", label: "Phantom", logo: "/wallet-logos/phantom.png" },
-  { id: "metamask", label: "MetaMask", logo: "/wallet-logos/metamask.png" },
-  { id: "coinbase", label: "Coinbase", logo: "/wallet-logos/coinbase.png" },
-  { id: "okx", label: "OKX", logo: "/wallet-logos/okx.png" },
-  { id: "other", label: "Other", logo: "" },
+  { id: "exodus", label: "Exodus", logo: getWalletLogo("exodus") },
+  { id: "trustwallet", label: "Trust Wallet", logo: getWalletLogo("trustwallet") },
+  { id: "phantom", label: "Phantom", logo: getWalletLogo("phantom") },
+  { id: "metamask", label: "MetaMask", logo: getWalletLogo("metamask") },
+  { id: "coinbase", label: "Coinbase", logo: getWalletLogo("coinbase") },
+  { id: "okx", label: "OKX", logo: getWalletLogo("okx") },
+  { id: "other", label: "Other", logo: GENERIC_WALLET_LOGO },
 ];
 
 export const walletNetworkOptions: WalletNetworkOption[] = [

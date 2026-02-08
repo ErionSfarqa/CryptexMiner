@@ -1,14 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, Smartphone, Sparkles } from "lucide-react";
 import { LiveTickerStrip } from "@/components/market/live-ticker-strip";
 import { ProductTour } from "@/components/marketing/product-tour";
 import { MarketPulsePanel } from "@/components/market/market-pulse";
 import { InstallStepperPreview } from "@/components/marketing/install-stepper-preview";
-import { PaypalCheckoutCard } from "@/components/payment/paypal-checkout-card";
-import { LogoMark } from "@/components/wallet/logo-mark";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { usePaymentGate } from "@/lib/payment-gate";
@@ -18,31 +17,6 @@ const featureStats = [
   { label: "Avg first-session duration", value: "11m" },
   { label: "User satisfaction score", value: "4.8/5" },
 ];
-
-const walletProviders = [
-  { name: "Exodus", logo: "/wallet-logos/exodus.png", fallback: "EX" },
-  { name: "Trust Wallet", logo: "/wallet-logos/trustwallet.png", fallback: "TW" },
-  { name: "Phantom", logo: "/wallet-logos/phantom.png", fallback: "PH" },
-  { name: "MetaMask", logo: "/wallet-logos/metamask.png", fallback: "MM" },
-  { name: "Coinbase", logo: "/wallet-logos/coinbase.png", fallback: "CB" },
-  { name: "OKX", logo: "/wallet-logos/okx.png", fallback: "OK" },
-];
-
-const networks = [
-  { name: "Bitcoin", logo: "/network-logos/bitcoin.svg", fallback: "BTC" },
-  { name: "Ethereum", logo: "/network-logos/ethereum.svg", fallback: "ETH" },
-  { name: "Solana", logo: "/network-logos/solana.svg", fallback: "SOL" },
-  { name: "BNB Chain", logo: "/network-logos/bnb-chain.svg", fallback: "BNB" },
-  { name: "Polygon", logo: "/network-logos/polygon.svg", fallback: "POL" },
-  { name: "Avalanche", logo: "/network-logos/avalanche.svg", fallback: "AVAX" },
-  { name: "TON", logo: "/network-logos/ton.svg", fallback: "TON" },
-  { name: "Arbitrum", logo: "/network-logos/arbitrum.svg", fallback: "ARB" },
-  { name: "Optimism", logo: "/network-logos/optimism.svg", fallback: "OP" },
-  { name: "Dogecoin", logo: "/network-logos/dogecoin.svg", fallback: "DOGE" },
-];
-
-const purchaseAmount = process.env.NEXT_PUBLIC_PAYPAL_PRICE_AMOUNT ?? "25.00";
-const purchaseCurrency = process.env.NEXT_PUBLIC_PAYPAL_PRICE_CURRENCY ?? "EUR";
 
 export default function MarketingPage() {
   const { isPaid } = usePaymentGate();
@@ -162,7 +136,28 @@ export default function MarketingPage() {
         </section>
 
         <section id="secure-payment" className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
-          <PaypalCheckoutCard amount={purchaseAmount} currency={purchaseCurrency} />
+          <Card className="rounded-2xl border-cyan-400/35 bg-[linear-gradient(150deg,rgba(13,27,44,0.9),rgba(11,21,36,0.82))]">
+            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Secure PayPal Payment</p>
+            <h2 className="mt-2 text-2xl font-semibold text-white">One-time purchase unlocks installation</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-300">
+              Installation is unlocked on the install page after secure PayPal checkout. Payment uses hosted PayPal
+              infrastructure with encrypted transfer and buyer protection.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2 text-xs">
+              <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-cyan-100">
+                TLS Encrypted
+              </span>
+              <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-cyan-100">
+                Buyer Protection
+              </span>
+              <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-cyan-100">
+                One-Time Fee
+              </span>
+            </div>
+            <Link href="/install" className="mt-5 inline-flex">
+              <Button>{isPaid ? "Install Miner" : "Open Install & Pay"}</Button>
+            </Link>
+          </Card>
           <Card className="rounded-2xl">
             <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">How It Works</p>
             <ol className="mt-4 space-y-3 text-sm text-slate-200">
@@ -171,9 +166,7 @@ export default function MarketingPage() {
               <li className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2">3. Connect wallets with provider and network logos.</li>
               <li className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-3 py-2">4. Start mining from the core control panel.</li>
             </ol>
-            <p className="mt-4 text-xs text-slate-400">
-              One-time access fee: {purchaseAmount} {purchaseCurrency}
-            </p>
+            <p className="mt-4 text-xs text-slate-400">One-time access fee shown during PayPal checkout.</p>
           </Card>
         </section>
 
@@ -202,35 +195,24 @@ export default function MarketingPage() {
         </section>
 
         <section>
-          <h2 className="mb-4 text-2xl font-semibold text-white">Supported Wallets & Networks</h2>
-          <div className="grid gap-4 lg:grid-cols-2">
-          <Card className="rounded-2xl">
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Supported Wallets</p>
-            <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-6">
-              {walletProviders.map((wallet) => (
-                <div key={wallet.name} className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-2 py-3 text-center">
-                  <div className="flex justify-center">
-                    <LogoMark src={wallet.logo} alt={`${wallet.name} logo`} fallback={wallet.fallback} size={24} />
-                  </div>
-                  <p className="mt-2 text-[11px] text-slate-300">{wallet.name}</p>
-                </div>
-              ))}
+          <div className="grid gap-4 rounded-2xl border border-slate-700/65 bg-[linear-gradient(130deg,rgba(17,33,56,0.72),rgba(10,22,38,0.84))] p-5 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+            <div className="space-y-3">
+              <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Pay Safely With PayPal</p>
+              <h2 className="text-2xl font-semibold text-white">Pay Safely With PayPal</h2>
+              <p className="max-w-2xl text-sm leading-6 text-slate-300">
+                Your one-time payment is securely handled by PayPal. No account needed. No wallet data stored. Fully
+                encrypted and trusted by millions worldwide.
+              </p>
             </div>
-          </Card>
-
-          <Card className="rounded-2xl">
-            <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Supported Networks</p>
-            <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-5">
-              {networks.map((network) => (
-                <div key={network.name} className="rounded-xl border border-slate-700/65 bg-slate-900/55 px-2 py-3 text-center">
-                  <div className="flex justify-center">
-                    <LogoMark src={network.logo} alt={`${network.name} logo`} fallback={network.fallback} size={24} />
-                  </div>
-                  <p className="mt-2 text-[11px] text-slate-300">{network.name}</p>
-                </div>
-              ))}
+            <div className="justify-self-end">
+              <Image
+                src="/images/paypal-trust-badge.png"
+                alt="Secure PayPal Checkout"
+                width={720}
+                height={420}
+                className="w-full max-w-[360px] rounded-2xl border border-slate-700/70 bg-slate-900/70 object-cover p-2"
+              />
             </div>
-          </Card>
           </div>
         </section>
 

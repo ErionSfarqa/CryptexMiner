@@ -59,6 +59,11 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <script
+          src="https://www.paypal.com/sdk/js?client-id=BAAG_G8uU08NOfUAHgVcL7RAHk5Bts9tXMeSYGjLm1AffxSQQ7obn7yrj8MLAA6J1iUFeAUvw38iPKQoiU&components=hosted-buttons&disable-funding=venmo&currency=EUR"
+          crossOrigin="anonymous"
+          async
+        />
       </head>
       <body className={`${heading.variable} ${body.variable} bg-[var(--color-bg)] text-[var(--color-text)] antialiased`}>
         <Providers>

@@ -1,13 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Toast } from "@/components/ui/toast";
-import { buildPaymentGatewayBase, usePaymentGate } from "@/lib/payment-gate";
+import { confirmClientPayment, usePaymentGate } from "@/lib/payment-gate";
 
 type Platform = "ios" | "android" | "windows" | "macos";
 
@@ -16,6 +14,9 @@ interface DeferredPromptEvent extends Event {
   readonly userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
   prompt(): Promise<void>;
 }
+
+const PAYPAL_HOSTED_BUTTON_ID = "GVDXTBZQFAVD4";
+const PAYPAL_CONTAINER_ID = "paypal-container-GVDXTBZQFAVD4";
 
 function detectPlatform(userAgent: string): Platform | null {
   const ua = userAgent.toLowerCase();
@@ -76,13 +77,17 @@ function MacLogo() {
 export default function InstallPage() {
   const [deferredPrompt, setDeferredPrompt] = useState<DeferredPromptEvent | null>(null);
   const [showIosOverlay, setShowIosOverlay] = useState(false);
+  const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [androidMessage, setAndroidMessage] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const previousCanInstallRef = useRef(false);
-  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const { isHydrated, isPaid, paymentSession } = usePaymentGate();
+  const [pendingPlatform, setPendingPlatform] = useState<Platform | null>(null);
+  const [paypalStatus, setPaypalStatus] = useState<"idle" | "loading" | "ready" | "fallback">("idle");
+  const [paypalRetrySeed, setPaypalRetrySeed] = useState(0);
 
-  const gatewayBase = useMemo(() => buildPaymentGatewayBase(), []);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { isHydrated, isPaid } = usePaymentGate();
+  const isDev = process.env.NODE_ENV === "development";
+  const canInstall = isHydrated ? isPaid : isDev;
 
   const userAgent = useSyncExternalStore(
     () => () => undefined,
@@ -91,6 +96,62 @@ export default function InstallPage() {
   );
 
   const recommended = useMemo(() => detectPlatform(userAgent), [userAgent]);
+
+  const showToast = useCallback((message: string) => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+
+    setToast(message);
+    toastTimerRef.current = setTimeout(() => setToast(null), 1800);
+  }, []);
+
+  const startInstallation = useCallback(
+    async (platform: Platform) => {
+      if (platform === "windows") {
+        window.location.href = "/downloads/Cryptex-Installer-Windows.exe";
+        return;
+      }
+
+      if (platform === "macos") {
+        window.location.href = "/downloads/Cryptex-Installer-macOS.dmg";
+        return;
+      }
+
+      if (platform === "ios") {
+        setShowIosOverlay(true);
+        return;
+      }
+
+      if (platform === "android") {
+        if (deferredPrompt) {
+          await deferredPrompt.prompt();
+          await deferredPrompt.userChoice;
+          setDeferredPrompt(null);
+          return;
+        }
+
+        setAndroidMessage("Install prompt unavailable on this browser session.");
+      }
+    },
+    [deferredPrompt],
+  );
+
+  const handleInstallClick = useCallback(
+    async (platform: Platform) => {
+      const hasPaid = window.localStorage.getItem("hasPaid") === "true" || process.env.NODE_ENV === "development";
+
+      if (!hasPaid) {
+        setPendingPlatform(platform);
+        setPaypalStatus("loading");
+        setShowPaywallModal(true);
+        return;
+      }
+
+      await startInstallation(platform);
+    },
+    [startInstallation],
+  );
 
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {
@@ -105,65 +166,87 @@ export default function InstallPage() {
     };
   }, []);
 
-  const verifyQuery = useQuery({
-    queryKey: ["payment-verify", paymentSession?.token, gatewayBase],
-    enabled: Boolean(isHydrated && paymentSession?.token),
-    networkMode: "always",
-    retry: false,
-    staleTime: 60_000,
-    queryFn: async () => {
-      if (!paymentSession?.token) {
-        return false;
-      }
-
-      const response = await fetch(`${gatewayBase}/api/paypal/verify?token=${encodeURIComponent(paymentSession.token)}`, {
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        return false;
-      }
-
-      const payload = (await response.json()) as { valid: boolean };
-      return payload.valid;
-    },
-  });
-
-  const paymentVerified = Boolean(isPaid && verifyQuery.data);
-  const verifyingPayment = Boolean(isPaid && verifyQuery.isPending);
-  const canInstall = paymentVerified;
-  const controlsLocked = !canInstall;
-
-  const showToast = useCallback((message: string) => {
-    if (toastTimerRef.current) {
-      clearTimeout(toastTimerRef.current);
-    }
-
-    setToast(message);
-    toastTimerRef.current = setTimeout(() => setToast(null), 1800);
-  }, []);
-
   useEffect(() => {
-    if (!isHydrated) {
+    if (!showPaywallModal) {
       return;
     }
 
-    const shouldShowUnlockToast = !previousCanInstallRef.current && canInstall;
+    let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let domReadyListener: (() => void) | null = null;
 
-    previousCanInstallRef.current = canInstall;
+    const renderPayPal = () => {
+      const container = document.getElementById(PAYPAL_CONTAINER_ID);
+      if (!container || cancelled) {
+        return;
+      }
 
-    if (!shouldShowUnlockToast) {
-      return;
+      container.innerHTML = "";
+
+      if (window.paypal?.HostedButtons) {
+        try {
+          const hosted = window.paypal.HostedButtons({ hostedButtonId: PAYPAL_HOSTED_BUTTON_ID });
+          Promise.resolve(hosted.render(`#${PAYPAL_CONTAINER_ID}`))
+            .then(() => {
+              if (!cancelled) {
+                setPaypalStatus("ready");
+              }
+            })
+            .catch(() => {
+              if (!cancelled) {
+                setPaypalStatus("fallback");
+              }
+            });
+        } catch {
+          if (!cancelled) {
+            setPaypalStatus("fallback");
+          }
+        }
+        return;
+      }
+
+      if (!cancelled) {
+        console.warn("PayPal not available, using fallback");
+        setPaypalStatus("fallback");
+      }
+    };
+
+    const retryRender = (attempt = 0) => {
+      if (cancelled) {
+        return;
+      }
+
+      if (window.paypal?.HostedButtons) {
+        renderPayPal();
+        return;
+      }
+
+      if (attempt >= 3) {
+        console.warn("PayPal hosted button render timed out, using fallback");
+        setPaypalStatus("fallback");
+        return;
+      }
+
+      retryTimer = setTimeout(() => retryRender(attempt + 1), 900);
+    };
+
+    if (document.readyState === "complete") {
+      retryRender();
+    } else {
+      domReadyListener = () => retryRender();
+      window.addEventListener("DOMContentLoaded", domReadyListener, { once: true });
     }
-
-    const timerId = window.setTimeout(() => {
-      showToast("Installation unlocked");
-    }, 0);
 
     return () => {
-      window.clearTimeout(timerId);
+      cancelled = true;
+      if (retryTimer) {
+        clearTimeout(retryTimer);
+      }
+      if (domReadyListener) {
+        window.removeEventListener("DOMContentLoaded", domReadyListener);
+      }
     };
-  }, [canInstall, isHydrated, showToast]);
+  }, [showPaywallModal, paypalRetrySeed]);
 
   useEffect(() => {
     return () => {
@@ -210,36 +293,6 @@ export default function InstallPage() {
     },
   ];
 
-  const handleMobileInstall = async (platform: Platform) => {
-    if (!canInstall) {
-      showToast("Unlock after payment");
-      return;
-    }
-
-    if (platform === "ios") {
-      setShowIosOverlay(true);
-      return;
-    }
-
-    if (platform === "android") {
-      if (deferredPrompt) {
-        await deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        setDeferredPrompt(null);
-        return;
-      }
-
-      setAndroidMessage("Install prompt unavailable on this browser session.");
-    }
-  };
-
-  const windowsDownloadUrl = paymentSession?.token
-    ? `${gatewayBase}/api/paypal/download/windows?token=${encodeURIComponent(paymentSession.token)}`
-    : "";
-  const macDownloadUrl = paymentSession?.token
-    ? `${gatewayBase}/api/paypal/download/macos?token=${encodeURIComponent(paymentSession.token)}`
-    : "";
-
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center px-4 py-14 sm:px-6">
       <Toast message={toast} />
@@ -254,30 +307,20 @@ export default function InstallPage() {
 
       <div
         className={`mx-auto mt-6 w-full max-w-3xl rounded-2xl px-4 py-4 text-center ${
-          controlsLocked
-            ? "border border-amber-400/40 bg-amber-500/10"
-            : "border border-emerald-400/35 bg-emerald-500/10"
+          canInstall
+            ? "border border-emerald-400/35 bg-emerald-500/10"
+            : "border border-cyan-400/35 bg-cyan-500/10"
         }`}
       >
-        {controlsLocked ? (
+        {canInstall ? (
           <>
-            <p className="text-sm font-semibold text-amber-100">
-              To activate mining, complete your secure PayPal payment.
-            </p>
-            <p className="mt-1 text-xs text-amber-100/90">
-              {verifyingPayment ? "Verifying payment status..." : "Buttons are visible below and unlock instantly after confirmation."}
-            </p>
-            <Link
-              href="/#secure-payment"
-              className="focus-ring mt-3 inline-flex h-10 items-center justify-center rounded-xl border border-amber-300/60 px-4 text-sm font-semibold text-amber-100 hover:bg-amber-400/15"
-            >
-              Complete Secure Payment
-            </Link>
+            <p className="text-sm font-semibold text-emerald-100">Payment confirmed. Installation is unlocked.</p>
+            <p className="mt-1 text-xs text-emerald-100/85">Select your platform and continue.</p>
           </>
         ) : (
           <>
-            <p className="text-sm font-semibold text-emerald-100">Payment confirmed. Installers are unlocked.</p>
-            <p className="mt-1 text-xs text-emerald-100/85">Choose your platform and continue installation.</p>
+            <p className="text-sm font-semibold text-cyan-100">Installation unlocks after secure PayPal payment.</p>
+            <p className="mt-1 text-xs text-cyan-100/85">Click any install button to open checkout.</p>
           </>
         )}
       </div>
@@ -285,52 +328,87 @@ export default function InstallPage() {
       <section className="mx-auto mt-8 grid w-full max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => {
           const isRecommended = card.id === recommended;
-          const isDesktop = card.id === "windows" || card.id === "macos";
-          const downloadHref = card.id === "windows" ? windowsDownloadUrl : card.id === "macos" ? macDownloadUrl : "";
 
           return (
             <Card
               key={card.id}
-              className={`relative flex flex-col items-center rounded-2xl p-5 text-center ${
+              className={`flex flex-col items-center rounded-2xl p-5 text-center ${
                 isRecommended ? "border-cyan-300/70 bg-cyan-300/10" : "border-slate-700/65"
-              } ${controlsLocked ? "bg-slate-950/40" : ""}`}
+              }`}
             >
-              {controlsLocked ? (
-                <div className="pointer-events-none absolute inset-0 rounded-2xl border border-slate-700/45 bg-slate-950/35 backdrop-blur-[1px]" />
-              ) : null}
-
               <div className="rounded-xl border border-slate-600/70 bg-slate-900/65 p-3">{card.logo}</div>
               <h2 className="mt-3 text-lg font-semibold text-white">{card.title}</h2>
               <p className="mt-1 text-xs text-slate-300">{card.subtitle}</p>
 
-              {isDesktop ? (
-                canInstall ? (
-                  <a
-                    href={downloadHref}
-                    className="focus-ring mt-5 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[linear-gradient(130deg,#2ad2c9,#14b8a6)] px-4 text-sm font-semibold text-slate-950 shadow-[0_14px_32px_rgba(31,206,193,0.25)] transition hover:brightness-105"
-                  >
-                    {card.buttonLabel}
-                  </a>
-                ) : (
-                  <div title="Unlock after payment" className="mt-5 w-full">
-                    <Button className="w-full" disabled>
-                      {card.buttonLabel}
-                    </Button>
-                  </div>
-                )
-              ) : (
-                <div title={!canInstall ? "Unlock after payment" : undefined} className="mt-5 w-full">
-                  <Button className="w-full" onClick={() => void handleMobileInstall(card.id)} disabled={!canInstall}>
-                    {card.buttonLabel}
-                  </Button>
-                </div>
-              )}
+              <Button className="mt-5 w-full" onClick={() => void handleInstallClick(card.id)}>
+                {card.buttonLabel}
+              </Button>
             </Card>
           );
         })}
       </section>
 
       {androidMessage ? <p className="mt-4 text-center text-sm text-slate-300">{androidMessage}</p> : null}
+
+      <Modal
+        isOpen={showPaywallModal}
+        onClose={() => {
+          setShowPaywallModal(false);
+          setPaypalStatus("idle");
+        }}
+        title="Secure payment required"
+        description="Complete your one-time PayPal payment to unlock installation."
+      >
+        <div className="space-y-4">
+          <div className="rounded-xl border border-slate-700/65 bg-slate-900/55 p-3">
+            <p className="text-sm text-slate-200">Pay securely with PayPal hosted checkout.</p>
+            <p className="mt-1 text-xs text-slate-400">
+              After payment, click confirmation below to unlock installation on this device.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-slate-700/65 bg-slate-900/55 p-3">
+            <div id={PAYPAL_CONTAINER_ID} />
+            {paypalStatus === "loading" ? (
+              <p className="mt-2 text-xs text-slate-400">Loading PayPal checkout...</p>
+            ) : null}
+            {paypalStatus === "fallback" ? (
+              <p className="mt-2 text-xs text-amber-200">
+                PayPal is currently unavailable. Retry below, or complete payment and confirm manually.
+              </p>
+            ) : null}
+          </div>
+
+          <div className="flex flex-wrap justify-end gap-2">
+            {paypalStatus === "fallback" ? (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setPaypalStatus("loading");
+                  setPaypalRetrySeed((value) => value + 1);
+                }}
+              >
+                Retry PayPal
+              </Button>
+            ) : null}
+            <Button
+              onClick={async () => {
+                confirmClientPayment();
+                setShowPaywallModal(false);
+                showToast("Payment confirmed — you can now install");
+
+                if (pendingPlatform) {
+                  const targetPlatform = pendingPlatform;
+                  setPendingPlatform(null);
+                  await startInstallation(targetPlatform);
+                }
+              }}
+            >
+              I&apos;ve Completed Payment
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       <Modal
         isOpen={showIosOverlay}

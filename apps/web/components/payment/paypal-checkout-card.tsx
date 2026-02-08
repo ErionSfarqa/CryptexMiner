@@ -14,7 +14,7 @@ import {
 declare global {
   interface Window {
     paypal?: {
-      Buttons: (config: {
+      Buttons?: (config: {
         createOrder: () => Promise<string>;
         onApprove: (data: { orderID: string }) => Promise<void>;
         onError: (error: unknown) => void;
@@ -30,6 +30,9 @@ declare global {
       }) => {
         render: (target: HTMLElement) => Promise<void>;
         close?: () => void;
+      };
+      HostedButtons?: (config: { hostedButtonId: string }) => {
+        render: (selector: string) => Promise<void> | void;
       };
     };
   }
@@ -101,7 +104,7 @@ export function PaypalCheckoutCard({ amount, currency, onPaid }: PaypalCheckoutC
       try {
         await ensurePayPalScript(clientId, currency);
 
-        if (cancelled || !window.paypal || !containerRef.current) {
+        if (cancelled || !window.paypal?.Buttons || !containerRef.current) {
           return;
         }
 
