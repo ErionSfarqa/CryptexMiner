@@ -310,7 +310,7 @@ export default function InstallPage() {
         )}
       </div>
 
-      <section className="mx-auto mt-8 grid w-full max-w-6xl grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="mx-auto mt-8 grid w-full max-w-6xl grid-cols-2 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => {
           const isRecommended = card.id === recommended;
           return (
