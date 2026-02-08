@@ -79,8 +79,7 @@ function getGatewayTokenFromSession() {
 }
 
 export default function InstallPage() {
-  const isDev = process.env.NODE_ENV === "development";
-  const [entitlement, setEntitlement] = useState<EntitlementState>(isDev ? "paid" : "loading");
+  const [entitlement, setEntitlement] = useState<EntitlementState>("loading");
   const [deferredPrompt, setDeferredPrompt] = useState<DeferredPromptEvent | null>(null);
   const [showIosOverlay, setShowIosOverlay] = useState(false);
   const [showPaywallModal, setShowPaywallModal] = useState(false);
@@ -109,11 +108,6 @@ export default function InstallPage() {
   }, []);
 
   const refreshEntitlement = useCallback(async () => {
-    if (isDev) {
-      setEntitlement("paid");
-      return true;
-    }
-
     try {
       const response = await fetch("/api/entitlement", {
         cache: "no-store",
@@ -132,7 +126,7 @@ export default function InstallPage() {
       setEntitlement("unpaid");
       return false;
     }
-  }, [isDev]);
+  }, []);
 
   const startInstallation = useCallback(
     async (platform: Platform) => {
@@ -164,10 +158,6 @@ export default function InstallPage() {
 
   const handleInstallClick = useCallback(
     async (platform: Platform) => {
-      if (entitlement === "loading") {
-        return;
-      }
-
       const hasEntitlement = canInstall || (await refreshEntitlement());
       if (!hasEntitlement) {
         setPendingPlatform(platform);
@@ -177,7 +167,7 @@ export default function InstallPage() {
 
       await startInstallation(platform);
     },
-    [canInstall, entitlement, refreshEntitlement, startInstallation],
+    [canInstall, refreshEntitlement, startInstallation],
   );
 
   const claimEntitlement = useCallback(async () => {
@@ -191,7 +181,7 @@ export default function InstallPage() {
     const gatewayToken = getGatewayTokenFromSession();
     const orderId = orderIdInput.trim();
 
-    if (!orderId && !gatewayToken && !isDev) {
+    if (!orderId && !gatewayToken) {
       setIsClaiming(false);
       setClaimError(
         "Enter a PayPal order ID from your return URL/receipt, or complete payment from a configured success return.",
@@ -220,7 +210,12 @@ export default function InstallPage() {
       return;
     }
 
-    setEntitlement("paid");
+    const unlocked = await refreshEntitlement();
+    if (!unlocked) {
+      setClaimError("Payment was submitted, but entitlement could not be confirmed yet. Please try again in a moment.");
+      return;
+    }
+
     setShowPaywallModal(false);
     showToast("Payment verified - installation unlocked");
 
@@ -229,7 +224,7 @@ export default function InstallPage() {
       setPendingPlatform(null);
       await startInstallation(platform);
     }
-  }, [isClaiming, isDev, orderIdInput, pendingPlatform, showToast, startInstallation]);
+  }, [isClaiming, orderIdInput, pendingPlatform, refreshEntitlement, showToast, startInstallation]);
 
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {

@@ -29,6 +29,8 @@ body {
   background: radial-gradient(circle at 8% 0%, #132741 0%, transparent 42%),
     radial-gradient(circle at 88% 20%, #12314f 0%, transparent 38%),
     linear-gradient(180deg, #060d1a 0%, #050b16 100%);
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
 }
 
 body {
@@ -140,6 +142,23 @@ textarea {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.paypal-hosted-root iframe,
+.paypal-hosted-root > iframe,
+.paypal-hosted-root > div {
+  max-width: 100% !important;
+}
+
+.paypal-hosted-root iframe {
+  display: block;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.paypal-hosted-root > div {
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 

@@ -162,6 +162,20 @@ export default function MarketingPage() {
             transition={{ duration: 0.3 }}
           >
             <motion.div
+              className="group overflow-hidden rounded-2xl border border-slate-700/65 bg-slate-900/55 p-2"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Image
+                src="/secure-pay/secure-pay.png"
+                alt="Secure checkout via PayPal"
+                width={1200}
+                height={800}
+                className="h-full w-full rounded-xl object-cover transition duration-300 group-hover:scale-[1.01]"
+              />
+            </motion.div>
+
+            <motion.div
               className="rounded-2xl border border-slate-700/65 bg-slate-900/55 p-5"
               whileHover={{ y: -2 }}
               transition={{ duration: 0.2 }}
@@ -197,20 +211,16 @@ export default function MarketingPage() {
                   EUR checkout
                 </span>
               </div>
-            </motion.div>
-
-            <motion.div
-              className="group overflow-hidden rounded-2xl border border-slate-700/65 bg-slate-900/55 p-2"
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Image
-                src="/secure-pay/secure-pay.png"
-                alt="Secure checkout via PayPal"
-                width={1200}
-                height={800}
-                className="h-full w-full rounded-xl object-cover transition duration-300 group-hover:scale-[1.01]"
-              />
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Link href="/install">
+                  <Button size="sm">Open Install Page</Button>
+                </Link>
+                <Link href="#secure-payment">
+                  <Button size="sm" variant="secondary">
+                    View Checkout
+                  </Button>
+                </Link>
+              </div>
             </motion.div>
           </motion.article>
 

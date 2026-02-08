@@ -1,9 +1,8 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+const DEV_FALLBACK_SECRET = "cryptex-dev-entitlement-secret";
 const ENTITLEMENT_SECRET =
-  process.env.ENTITLEMENT_SECRET ??
-  process.env.PAYPAL_GATEWAY_TOKEN_SECRET ??
-  "cryptex-dev-entitlement-secret";
+  process.env.ENTITLEMENT_SECRET ?? (process.env.NODE_ENV === "development" ? DEV_FALLBACK_SECRET : null);
 
 const TOKEN_TTL_SECONDS = 60 * 60 * 24 * 30;
 
@@ -15,6 +14,10 @@ interface EntitlementPayload {
 }
 
 function sign(payloadSegment: string) {
+  if (!ENTITLEMENT_SECRET) {
+    return null;
+  }
+
   return createHmac("sha256", ENTITLEMENT_SECRET).update(payloadSegment).digest("base64url");
 }
 
@@ -29,6 +32,10 @@ export function createEntitlementToken(params: { orderId: string; source: Entitl
 
   const payloadSegment = Buffer.from(JSON.stringify(payload), "utf-8").toString("base64url");
   const signature = sign(payloadSegment);
+  if (!signature) {
+    throw new Error("ENTITLEMENT_SECRET is not configured.");
+  }
+
   return `${payloadSegment}.${signature}`;
 }
 
@@ -45,6 +52,9 @@ export function verifyEntitlementToken(token: string | undefined | null): Entitl
   const payloadSegment = parts[0];
   const providedSignature = parts[1];
   const expectedSignature = sign(payloadSegment);
+  if (!expectedSignature) {
+    return null;
+  }
 
   const expectedBuffer = Buffer.from(expectedSignature, "utf-8");
   const providedBuffer = Buffer.from(providedSignature, "utf-8");
@@ -67,4 +77,3 @@ export function verifyEntitlementToken(token: string | undefined | null): Entitl
 
 export const ENTITLEMENT_COOKIE_NAME = "cryptex_entitlement";
 export const ENTITLEMENT_MAX_AGE = TOKEN_TTL_SECONDS;
-

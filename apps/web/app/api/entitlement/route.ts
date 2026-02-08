@@ -92,10 +92,15 @@ async function verifyGatewayToken(gatewayToken: string) {
     return false;
   }
 
-  const token = createEntitlementToken({
-    orderId: payload.session.orderId,
-    source: "gateway-token",
-  });
+  let token: string;
+  try {
+    token = createEntitlementToken({
+      orderId: payload.session.orderId,
+      source: "gateway-token",
+    });
+  } catch {
+    return false;
+  }
   const cookieStore = await cookies();
   cookieStore.set({ ...entitlementCookieConfig(), value: token });
   return true;
@@ -109,8 +114,6 @@ export async function GET() {
   return NextResponse.json(
     {
       paid: Boolean(entitlement),
-      source: entitlement?.source ?? null,
-      orderId: entitlement?.orderId ?? null,
     },
     { headers: { "Cache-Control": "no-store" } },
   );
@@ -157,10 +160,21 @@ export async function POST(request: Request) {
     );
   }
 
-  const token = createEntitlementToken({
-    orderId,
-    source: "paypal-order",
-  });
+  let token: string;
+  try {
+    token = createEntitlementToken({
+      orderId,
+      source: "paypal-order",
+    });
+  } catch {
+    return NextResponse.json(
+      {
+        paid: false,
+        error: "Server entitlement secret is not configured.",
+      },
+      { status: 500, headers: { "Cache-Control": "no-store" } },
+    );
+  }
   const cookieStore = await cookies();
   cookieStore.set({ ...entitlementCookieConfig(), value: token });
 
@@ -172,4 +186,3 @@ export async function DELETE() {
   cookieStore.set({ ...entitlementCookieConfig(), value: "", maxAge: 0 });
   return NextResponse.json({ paid: false }, { headers: { "Cache-Control": "no-store" } });
 }
-

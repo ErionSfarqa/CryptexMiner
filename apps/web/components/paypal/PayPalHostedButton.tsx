@@ -12,7 +12,7 @@ interface PayPalHostedButtonProps {
 }
 
 const POLL_INTERVAL_MS = 200;
-const MAX_WAIT_MS = 5000;
+const MAX_WAIT_MS = 15000;
 
 type RenderStatus = "loading" | "ready" | "error";
 
@@ -58,7 +58,7 @@ export function PayPalHostedButton({ hostedButtonId, containerId, className }: P
         return;
       }
 
-      if (container.childElementCount > 0) {
+      if (container.querySelector("iframe")) {
         renderedRef.current = true;
         setRenderStatus("ready");
         return;
@@ -69,6 +69,10 @@ export function PayPalHostedButton({ hostedButtonId, containerId, className }: P
       }
 
       try {
+        if (container.childElementCount > 0) {
+          container.innerHTML = "";
+        }
+
         renderedRef.current = true;
         const hostedButtons = window.paypal.HostedButtons({ hostedButtonId });
         await Promise.resolve(hostedButtons.render(`#${containerId}`));
