@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, BadgeCheck, Lock, ShieldCheck, Smartphone, Sparkles } from "lucide-react";
 import { LiveTickerStrip } from "@/components/market/live-ticker-strip";
@@ -17,6 +16,30 @@ const featureStats = [
   { label: "Install completion rate", value: "92%" },
   { label: "Avg first-session duration", value: "11m" },
   { label: "User satisfaction score", value: "4.8/5" },
+];
+
+const securePaymentCards = [
+  {
+    eyebrow: "Secure Checkout",
+    title: "One-time purchase, encrypted payment",
+    body: "Checkout runs through PayPal with a clean EUR payment flow and protected transaction handling.",
+    points: ["Encrypted transfer", "Buyer protection", "Secure order processing"],
+    icon: BadgeCheck,
+  },
+  {
+    eyebrow: "Protected Payments",
+    title: "No card storage on our servers",
+    body: "Sensitive payment details stay with PayPal. Cryptex receives only verification status for access unlock.",
+    points: ["No card retention", "Server-side entitlement", "Reduced fraud surface"],
+    icon: ShieldCheck,
+  },
+  {
+    eyebrow: "Instant Access",
+    title: "Install unlocks after confirmation",
+    body: "Once payment is verified, installer downloads become available directly from the install page.",
+    points: ["Fast unlock", "Cross-device access", "Clear activation status"],
+    icon: Lock,
+  },
 ];
 
 const PAYPAL_HOSTED_BUTTON_ID = "GVDXTBZQFAVD4";
@@ -141,7 +164,7 @@ export default function MarketingPage() {
 
         <section id="secure-payment" className="space-y-6">
           <motion.div
-            className="max-w-2xl"
+            className="mx-auto max-w-2xl text-center"
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
@@ -154,92 +177,52 @@ export default function MarketingPage() {
             </p>
           </motion.div>
 
-          <motion.article
-            className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr] lg:items-center"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.28 }}
-            transition={{ duration: 0.3 }}
-          >
-            <motion.div
-              className="group overflow-hidden rounded-2xl border border-slate-700/65 bg-slate-900/55 p-3"
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-950/20">
-                <Image
-                  src="/secure-pay/secure-pay.png"
-                  alt="Secure checkout via PayPal"
-                  fill
-                  sizes="(min-width: 1024px) 520px, 100vw"
-                  className="object-contain transition duration-300 group-hover:scale-[1.01]"
-                />
-              </div>
-            </motion.div>
-
-            <motion.div
-              className="rounded-2xl border border-slate-700/65 bg-slate-900/55 p-5"
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.2 }}
-            >
-              <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Pay Securely</p>
-              <h3 className="mt-2 text-2xl font-semibold text-white">Pay securely with trusted checkout</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                One clear payment step, professional checkout UX, and entitlement-based access unlock on successful
-                payment verification.
-              </p>
-              <ul className="mt-4 space-y-2">
-                <li className="flex items-start gap-2 text-sm text-slate-200">
-                  <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
-                  PayPal secure checkout
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-200">
-                  <Lock className="mt-0.5 h-4 w-4 text-cyan-300" />
-                  No card details stored on our servers
-                </li>
-                <li className="flex items-start gap-2 text-sm text-slate-200">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
-                  Activation instructions shown after payment
-                </li>
-              </ul>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
-                  Encrypted transfer
-                </span>
-                <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
-                  Buyer protection
-                </span>
-                <span className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1 text-xs text-cyan-100">
-                  EUR checkout
-                </span>
-              </div>
-              <div className="mt-5 flex flex-wrap gap-2">
-                <Link href="/install">
-                  <Button size="sm">Open Install Page</Button>
-                </Link>
-                <Link href="#secure-payment">
-                  <Button size="sm" variant="secondary">
-                    View Checkout
-                  </Button>
-                </Link>
-              </div>
-            </motion.div>
-          </motion.article>
-
-          <motion.div
-            className="mx-auto w-full max-w-6xl px-4 sm:px-6"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.28 }}
-          >
-            <div className="flex justify-center">
-              <Card className="mx-auto w-full max-w-lg rounded-2xl border-cyan-400/35 bg-[linear-gradient(150deg,rgba(13,27,44,0.9),rgba(11,21,36,0.82))]">
-                <div className="space-y-4">
-                  <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
+          <div className="mx-auto w-full max-w-6xl space-y-4 px-4 sm:px-6">
+            {securePaymentCards.slice(0, 2).map((item, index) => (
+              <motion.div
+                key={item.title}
+                className={`flex ${index === 0 ? "justify-end" : "justify-start"}`}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.26, delay: index * 0.05 }}
+              >
+                <Card className="group w-full max-w-xl rounded-2xl border-slate-700/65 bg-slate-900/55 p-5 transition duration-300 hover:border-cyan-300/40 hover:shadow-[0_18px_50px_-30px_rgba(34,211,238,0.7)]">
+                  <div className="flex items-start gap-3">
+                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-300/35 bg-cyan-300/10 text-cyan-200">
+                      <item.icon className="h-4 w-4" />
+                    </span>
                     <div>
+                      <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">{item.eyebrow}</p>
+                      <h3 className="mt-1 whitespace-normal break-words text-xl font-semibold text-white">{item.title}</h3>
+                      <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-slate-300">{item.body}</p>
+                      <ul className="mt-3 space-y-1.5">
+                        {item.points.map((point) => (
+                          <li key={point} className="flex items-start gap-2 text-sm text-slate-200">
+                            <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                            <span className="whitespace-normal break-words">{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+
+            <motion.div
+              className="flex justify-center"
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.24 }}
+              transition={{ duration: 0.24 }}
+            >
+              <Card className="w-full max-w-md rounded-2xl border-cyan-400/35 bg-[linear-gradient(150deg,rgba(13,27,44,0.9),rgba(11,21,36,0.82))]">
+                <div className="space-y-4">
+                  <div className="flex flex-col items-center gap-3 text-center">
+                    <div className="mx-auto">
                       <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">Unlock Access</p>
-                      <h3 className="mt-2 text-2xl font-semibold text-white">One-time PayPal activation</h3>
+                      <h3 className="mt-2 whitespace-normal break-words text-2xl font-semibold text-white">One-time PayPal activation</h3>
                       <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-slate-300">
                         Complete checkout to unlock installer downloads and activate access across devices.
                       </p>
@@ -250,8 +233,12 @@ export default function MarketingPage() {
                     </span>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-700/65 bg-slate-900/55 p-4">
-                    <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
+                  <div className="mx-auto w-full max-w-[380px] rounded-2xl border border-slate-700/65 bg-slate-900/55 p-4">
+                    <div className="mx-auto flex justify-center">
+                      <div className="w-full max-w-[360px] min-h-[56px]">
+                        <PayPalHostedButton hostedButtonId={PAYPAL_HOSTED_BUTTON_ID} containerId={PAYPAL_CONTAINER_ID} />
+                      </div>
+                    </div>
                     <p className="mt-3 whitespace-normal break-words text-center text-xs text-slate-400">
                       After checkout, return to the Install page to download.
                     </p>
@@ -272,23 +259,50 @@ export default function MarketingPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    <Link href="/install" className="w-full sm:w-auto">
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <Link href="/install" className="w-full max-w-[240px]">
                       <Button className="w-full" size="sm">
                         Open Install Page
                         <ArrowRight className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Link href="/app/markets" className="w-full sm:w-auto">
-                      <Button className="w-full" size="sm" variant="secondary">
-                        View Live Markets
-                      </Button>
-                    </Link>
                   </div>
                 </div>
               </Card>
-            </div>
-          </motion.div>
+            </motion.div>
+
+            {securePaymentCards.slice(2).map((item) => (
+              <motion.div
+                key={item.title}
+                className="flex justify-end"
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.26, delay: 0.08 }}
+              >
+                <Card className="group w-full max-w-xl rounded-2xl border-slate-700/65 bg-slate-900/55 p-5 transition duration-300 hover:border-cyan-300/40 hover:shadow-[0_18px_50px_-30px_rgba(34,211,238,0.7)]">
+                  <div className="flex items-start gap-3">
+                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-300/35 bg-cyan-300/10 text-cyan-200">
+                      <item.icon className="h-4 w-4" />
+                    </span>
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.24em] text-cyan-200/70">{item.eyebrow}</p>
+                      <h3 className="mt-1 whitespace-normal break-words text-xl font-semibold text-white">{item.title}</h3>
+                      <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-slate-300">{item.body}</p>
+                      <ul className="mt-3 space-y-1.5">
+                        {item.points.map((point) => (
+                          <li key={point} className="flex items-start gap-2 text-sm text-slate-200">
+                            <BadgeCheck className="mt-0.5 h-4 w-4 text-cyan-300" />
+                            <span className="whitespace-normal break-words">{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
         </section>
 
         <section>

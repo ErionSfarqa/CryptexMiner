@@ -7,7 +7,7 @@ import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-type ClaimState = "idle" | "verifying" | "success" | "error";
+type ClaimState = "idle" | "verifying" | "success" | "pending" | "error";
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
@@ -24,15 +24,15 @@ function PaymentSuccessContent() {
 
     const claim = async () => {
       if (!orderId) {
-        setState("error");
-        setErrorMessage("Order ID not found. Return from PayPal with token/orderId, then retry.");
+        setState("pending");
+        setErrorMessage("Payment confirmation pending. Contact support if you were charged.");
         return;
       }
 
       setState("verifying");
       setErrorMessage(null);
 
-      const response = await fetch("/api/entitlement", {
+      const response = await fetch("/api/entitlement/grant", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -45,11 +45,12 @@ function PaymentSuccessContent() {
       }
 
       if (!response.ok) {
-        const payload = (await response.json().catch(() => ({ error: "Payment verification failed." }))) as {
+        const payload = (await response.json().catch(() => ({ error: "Payment confirmation pending." }))) as {
           error?: string;
+          paid?: boolean;
         };
-        setState("error");
-        setErrorMessage(payload.error ?? "Payment verification failed.");
+        setState(payload.paid ? "success" : "pending");
+        setErrorMessage(payload.error ?? "Payment confirmation pending. Contact support if you were charged.");
         return;
       }
 
@@ -78,6 +79,14 @@ function PaymentSuccessContent() {
             <p className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-100">
               <CheckCircle2 className="h-4 w-4" />
               Payment verified. Installation is unlocked.
+            </p>
+          </div>
+        ) : null}
+
+        {state === "pending" ? (
+          <div className="mt-4 rounded-xl border border-amber-400/35 bg-amber-500/10 p-4">
+            <p className="text-sm text-amber-100 whitespace-normal break-words">
+              {errorMessage ?? "Payment confirmation pending. Contact support if you were charged."}
             </p>
           </div>
         ) : null}

@@ -72,6 +72,7 @@ export default function InstallPage() {
   const [androidMessage, setAndroidMessage] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [pendingPlatform, setPendingPlatform] = useState<Platform | null>(null);
+  const [checkingUnlock, setCheckingUnlock] = useState(false);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const userAgent = useSyncExternalStore(
@@ -152,6 +153,28 @@ export default function InstallPage() {
     },
     [canInstall, refreshEntitlement, startInstallation],
   );
+
+  const handlePaymentCheck = useCallback(async () => {
+    setCheckingUnlock(true);
+    try {
+      const unlocked = await refreshEntitlement();
+      if (!unlocked) {
+        showToast("Payment not confirmed yet");
+        return;
+      }
+
+      setShowPaywallModal(false);
+      showToast("Payment verified. Continuing install");
+
+      const platform = pendingPlatform;
+      setPendingPlatform(null);
+      if (platform) {
+        await startInstallation(platform);
+      }
+    } finally {
+      setCheckingUnlock(false);
+    }
+  }, [pendingPlatform, refreshEntitlement, showToast, startInstallation]);
 
   useEffect(() => {
     const onBeforeInstallPrompt = (event: Event) => {
@@ -248,28 +271,46 @@ export default function InstallPage() {
       </div>
 
       <div
-        className={`mx-auto mt-6 w-full max-w-3xl rounded-2xl px-4 py-4 text-center ${
+        className={`mx-auto mt-6 w-full max-w-3xl rounded-2xl px-5 py-4 shadow-[0_20px_60px_-40px_rgba(34,211,238,0.65)] ${
           entitlement === "paid"
-            ? "border border-emerald-400/35 bg-emerald-500/10"
-            : "border border-cyan-400/35 bg-cyan-500/10"
+            ? "border border-emerald-200/20 bg-[linear-gradient(145deg,rgba(16,70,58,0.24),rgba(8,25,22,0.22))]"
+            : "border border-cyan-200/20 bg-[linear-gradient(145deg,rgba(34,211,238,0.08),rgba(8,37,62,0.28))]"
         }`}
       >
         {entitlement === "loading" ? (
           <Skeleton className="mx-auto h-14 w-full max-w-xl rounded-xl" />
         ) : entitlement === "paid" ? (
-          <>
-            <p className="text-sm font-semibold text-emerald-100">Payment verified. Installation is unlocked.</p>
-            <p className="mt-1 text-xs text-emerald-100/85">Select your platform and continue.</p>
-          </>
+          <div className="flex items-start gap-3 text-left">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-emerald-300/30 bg-emerald-400/10 text-emerald-200">
+              <BadgeCheck className="h-4 w-4" />
+            </span>
+            <div>
+              <p className="whitespace-normal break-words text-sm font-semibold text-emerald-100">
+                Payment verified. Installation is unlocked.
+              </p>
+              <p className="mt-1 whitespace-normal break-words text-xs text-emerald-100/85">
+                Select your platform and continue.
+              </p>
+            </div>
+          </div>
         ) : (
-          <>
-            <p className="text-sm font-semibold text-cyan-100">Installation unlocks after secure PayPal payment.</p>
-            <p className="mt-1 text-xs text-cyan-100/85">Click any install button to open checkout.</p>
-          </>
+          <div className="flex items-start gap-3 text-left">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-300/30 bg-cyan-400/10 text-cyan-200">
+              <Lock className="h-4 w-4" />
+            </span>
+            <div>
+              <p className="whitespace-normal break-words text-sm font-semibold text-cyan-100">
+                Installation unlocks after secure PayPal payment.
+              </p>
+              <p className="mt-1 whitespace-normal break-words text-xs text-cyan-100/85">
+                Click any install button to open checkout.
+              </p>
+            </div>
+          </div>
         )}
       </div>
 
-      <section className="mx-auto mt-8 grid w-full max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="mx-auto mt-8 grid w-full max-w-5xl grid-cols-2 gap-4 lg:grid-cols-4">
         {cards.map((card) => {
           const isRecommended = card.id === recommended;
           return (
@@ -296,6 +337,7 @@ export default function InstallPage() {
         isOpen={showPaywallModal}
         onClose={() => {
           setShowPaywallModal(false);
+          setPendingPlatform(null);
         }}
         title="Unlock access"
         description="Complete secure checkout to continue installation."
@@ -325,8 +367,18 @@ export default function InstallPage() {
               </div>
             </Card>
           </div>
-          <div className="mt-3 border-t border-slate-700/65 pt-3">
-            <Button className="w-full" variant="secondary" onClick={() => setShowPaywallModal(false)}>
+          <div className="mt-3 grid gap-2 border-t border-slate-700/65 pt-3 sm:grid-cols-2">
+            <Button className="w-full" onClick={() => void handlePaymentCheck()} disabled={checkingUnlock}>
+              {checkingUnlock ? "Checking payment..." : "I completed payment"}
+            </Button>
+            <Button
+              className="w-full"
+              variant="secondary"
+              onClick={() => {
+                setShowPaywallModal(false);
+                setPendingPlatform(null);
+              }}
+            >
               Close
             </Button>
           </div>
